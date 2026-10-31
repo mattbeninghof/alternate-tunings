@@ -241,6 +241,30 @@
     return fingers;
   }
 
+  // Capo: the open strings sound `capo` semitones higher; shapes are unchanged.
+  function withCapo(midi, capo) {
+    capo = capo | 0;
+    return midi.map((m) => (m == null ? null : m + capo));
+  }
+
+  // Which capo fret (0..maxCapo) gives the easiest shapes for a list of parsed chords.
+  // Returns [{capo, cost, missing}] sorted easiest first.
+  function suggestCapo(midi, chords, opts) {
+    opts = Object.assign({ maxCapo: 7 }, opts || {});
+    const out = [];
+    for (let capo = 0; capo <= opts.maxCapo; capo++) {
+      const eff = withCapo(midi, capo);
+      let cost = 0, missing = 0;
+      for (const c of chords) {
+        const vs = findVoicings(eff, c.root, c.type.intervals, { limit: 1, bassPc: c.bass, optional: c.type.optional });
+        if (vs.length) cost += vs[0].score; else { cost += 30; missing++; }
+      }
+      out.push({ capo, cost, missing });
+    }
+    out.sort((a, b) => a.cost - b.cost || a.capo - b.capo);
+    return out;
+  }
+
   // Chord symbol parsing: "G", "Am7", "F#m7b5", "Bbmaj7", "D7sus4", "C6/9", "G/B", "Cdim7", "E+".
   const SUFFIX_ALIASES = {
     '': 'maj', 'maj': 'maj', 'major': 'maj', 'M': 'maj',
@@ -396,6 +420,6 @@
     parseNote, parseTuningString, retune, fretRow, stringIntervals, intervalName, span,
     identifyChord, describePitchSet, fretboard, pitchSet, findVoicings, assignFingers,
     chordChart, identifyTuning, describeMatch, relatedTunings, scaleMap,
-    parseChordSymbol, parseProgression, SUFFIX_ALIASES
+    parseChordSymbol, parseProgression, SUFFIX_ALIASES, withCapo, suggestCapo
   };
 });

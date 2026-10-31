@@ -167,6 +167,13 @@ label.field { display: grid; gap: 4px; font-size: .78rem; color: var(--ink-soft)
 .fretboard .dot.root + .dot-text { fill: #fff; }
 .fretboard .name { fill: var(--ink-soft); font-size: 10px; paint-order: stroke; stroke: var(--card); stroke-width: 3px; stroke-linejoin: round; }
 .fretboard .hit { fill: transparent; cursor: pointer; }
+.fretboard .capo { fill: var(--marigold); stroke: var(--marigold-deep); stroke-width: 1; }
+.fretboard .capo-label { fill: var(--marigold-deep); font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.fretboard .capo-shade { fill: var(--paper-deep); opacity: .7; }
+.fretboard .name.behind { opacity: .35; }
+.string .capo-note { margin-top: 4px; font-size: .72rem; font-weight: 600; color: var(--marigold-deep); white-space: nowrap; }
+.string .capo-note sub { font-size: .7em; }
+.diagram .d-capo { stroke: var(--marigold); stroke-width: 4; stroke-linecap: round; }
 .legend { display: flex; gap: var(--s4); font-size: .8rem; color: var(--ink-soft); align-items: center; flex-wrap: wrap; }
 .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: -1px; margin-right: 5px; }
 .legend i.root { background: var(--pine); } .legend i.tone { background: var(--marigold); }

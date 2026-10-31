@@ -7,7 +7,8 @@ An interactive companion to Bill Sethares' free [Alternate Tuning Guide](https:/
 - related tunings (transpositions and one-string neighbors), computed
 - a full fretboard note map with any scale from the book's table highlighted
 - a chord voicing finder for any root and chord type, with fingerings, barres and positions, plus an auto-generated chord chart in the tuning's natural key
-- a chord progression tool: type chord names (Em7, A9, Bm7b5, G/B, F13 and so on) and see how each one falls in the current tuning, then play them in sequence
+- a capo on every tuning page: the fretboard, scales, chord voicings, chord chart, progression tool and playback all follow it, with chords named at sounding pitch
+- a chord progression tool: type chord names (Em7, A9, Bm7b5, G/B, F13 and so on) and see how each one falls in the current tuning, then play them in sequence, with a capo suggestion for the easiest shapes
 - plucked-string playback for open strings, single notes, chord voicings and progressions, with a guitar-body EQ and a small room
 - a tuning identifier that reproduces the book's cross index for any six notes you type
 

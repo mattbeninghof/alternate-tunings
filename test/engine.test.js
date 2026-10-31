@@ -183,3 +183,14 @@ test('findVoicings honors a requested bass note and optional tones', () => {
   const vs = E.findVoicings(E.STANDARD, 7, thirteen.intervals, { optional: thirteen.optional, limit: 5 });
   assert.ok(vs.length > 0, 'a G13 voicing exists in standard tuning');
 });
+
+test('capo shifts the sounding pitches and suggests an easy fret', () => {
+  assert.deepEqual(E.withCapo(E.STANDARD, 2), [42, 47, 52, 57, 61, 66]);
+  assert.deepEqual(E.withCapo(byId('charango').midi, 3)[0], null);
+  // F Bb C in standard tuning is easiest with a capo (open shapes), not at the nut
+  const chords = E.parseProgression('F Bb C Dm', D.CHORD_TYPES);
+  const ranked = E.suggestCapo(E.STANDARD, chords, { maxCapo: 7 });
+  assert.equal(ranked.length, 8);
+  assert.ok(ranked[0].capo > 0, 'a capo position beats the nut for F Bb C Dm');
+  assert.ok(ranked[0].cost <= ranked[ranked.length - 1].cost);
+});

@@ -11,9 +11,12 @@
   const state = {
     route: 'home', tuning: null, custom: null,
     scaleRoot: null, scaleType: 'major', chordRoot: null, chordType: 'maj', chordTab: 'find', filter: '',
-    progression: ''
+    progression: '', capo: 0
   };
-  try { state.progression = localStorage.getItem('atg.progression') || ''; } catch (e) { /* storage unavailable */ }
+  try {
+    state.progression = localStorage.getItem('atg.progression') || '';
+    state.capo = Math.max(0, Math.min(9, parseInt(localStorage.getItem('atg.capo') || '0', 10) || 0));
+  } catch (e) { /* storage unavailable */ }
 
   // ---------- helpers ----------
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -33,6 +36,7 @@
     const bass = midi.find((m) => m != null);
     return E.identifyChord(pcs, D.CHORD_TYPES, E.pc(bass));
   }
+  const article = (name) => (/^[AEF]/.test(name) ? 'an' : 'a');
   function ordinal(n) { const r = n % 100; if (r >= 11 && r <= 13) return n + 'th'; return n + (['th', 'st', 'nd', 'rd'][n % 10] || 'th'); }
   function chordLabel(rootPc, type) { return E.NOTE_NAMES[rootPc] + ' ' + type.abbr; }
   function customFromPcs(pcs) {
@@ -50,13 +54,15 @@
   const Audio = window.GuitarAudio;
 
   // ---------- SVG builders ----------
-  function fretboardSVG(midi, scaleRoot, scaleIntervals) {
+  function fretboardSVG(midi, scaleRoot, scaleIntervals, capo) {
+    capo = capo | 0;
     const nStr = midi.length;
     const labelW = 44, fretW = 68, rowH = 30, top = 22, bottom = 26;
     const nutX = labelW + fretW;
     const W = nutX + FRETS * fretW + 8, H = top + nStr * rowH + bottom;
     const map = scaleRoot != null ? E.scaleMap(midi, scaleRoot, scaleIntervals, FRETS) : null;
-    let s = `<svg class="fretboard" viewBox="0 0 ${W} ${H}" role="img" aria-label="Fretboard note map">`;
+    let s = `<svg class="fretboard" viewBox="0 0 ${W} ${H}" role="img" aria-label="Fretboard note map${capo ? ', capo at fret ' + capo : ''}">`;
+    if (capo) s += `<rect class="capo-shade" x="${labelW}" y="${top - 6}" width="${nutX + (capo - 1) * fretW + fretW * 0.55 - labelW}" height="${nStr * rowH + 8}" rx="6"/>`;
     // fret markers
     [3, 5, 7, 9].forEach((f) => { const x = nutX + (f - 0.5) * fretW; s += `<circle class="marker" cx="${x}" cy="${top + nStr * rowH / 2}" r="7"/>`; });
     { const x = nutX + 11.5 * fretW; s += `<circle class="marker" cx="${x}" cy="${top + nStr * rowH / 2 - 26}" r="7"/><circle class="marker" cx="${x}" cy="${top + nStr * rowH / 2 + 26}" r="7"/>`; }
@@ -78,6 +84,8 @@
       for (let f = 0; f <= FRETS; f++) {
         const m = midi[si] + f;
         const x = f === 0 ? labelW + fretW / 2 : nutX + (f - 0.5) * fretW;
+        const behindCapo = capo && f < capo;
+        if (behindCapo) { s += `<text class="name behind" x="${x}" y="${y + 3}" text-anchor="middle">${E.noteName(m)}</text>`; continue; }
         const hit = map && map[si].find((n) => n.fret === f);
         if (hit) {
           s += `<circle class="dot${hit.isRoot ? ' root' : ''}" cx="${x}" cy="${y}" r="${hit.isRoot ? 12.5 : 11.5}"/><text class="dot-text" x="${x}" y="${y + 3.8}" text-anchor="middle">${E.noteName(m)}</text>`;
@@ -87,6 +95,10 @@
         s += `<rect class="hit" x="${x - fretW / 2}" y="${y - rowH / 2}" width="${fretW}" height="${rowH}" data-midi="${m}"><title>${E.sciName(m)}, string ${nStr - si} fret ${f}</title></rect>`;
       }
     }
+    if (capo) {
+      const cx = nutX + (capo - 1) * fretW + fretW * 0.72;
+      s += `<rect class="capo" x="${cx - 5}" y="${top - 8}" width="10" height="${(nStr - 1) * rowH + rowH / 2 + 12}" rx="5"/><text class="capo-label" x="${cx}" y="${top - 11}" text-anchor="middle">capo</text>`;
+    }
     // fret numbers
     for (let f = 1; f <= FRETS; f++) s += `<text class="label" x="${nutX + (f - 0.5) * fretW}" y="${H - 8}" text-anchor="middle">${f}</text>`;
     s += `<text class="label" x="${labelW + fretW / 2}" y="${H - 8}" text-anchor="middle">open</text>`;
@@ -94,7 +106,8 @@
     return s;
   }
 
-  function diagramSVG(midi, v, rootPc) {
+  function diagramSVG(midi, v, rootPc, capo) {
+    capo = capo | 0;
     const n = midi.length, colW = 14, x0 = 18, nutY = 26, fretH = 18, rows = 5;
     const fretted = v.frets.filter((f) => f > 0);
     const minF = fretted.length ? Math.min(...fretted) : 1;
@@ -104,8 +117,9 @@
     let s = `<svg class="diagram" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
     for (let r = 0; r <= rows; r++) {
       const y = nutY + r * fretH;
-      s += `<line class="${r === 0 && base === 1 ? 'd-nut' : 'd-wire'}" x1="${x0}" y1="${y}" x2="${x0 + (n - 1) * colW}" y2="${y}"/>`;
+      s += `<line class="${r === 0 && base === 1 ? (capo ? 'd-capo' : 'd-nut') : 'd-wire'}" x1="${x0}" y1="${y}" x2="${x0 + (n - 1) * colW}" y2="${y}"/>`;
     }
+    if (capo && base === 1) s += `<text class="d-pos" x="${x0 - 5}" y="${nutY + 3}" text-anchor="end">c${capo}</text>`;
     for (let i = 0; i < n; i++) {
       const x = x0 + i * colW;
       s += `<line class="d-str" x1="${x}" y1="${nutY}" x2="${x}" y2="${nutY + rows * fretH}"/>`;
@@ -205,9 +219,11 @@
     const t = state.tuning;
     const el = $('#view-tuning');
     if (!t) { el.innerHTML = ''; return; }
-    const midi = t.midi;
+    const actual = t.midi;
+    const capo = state.capo | 0;
+    const midi = E.withCapo(actual, capo); // what the strings sound with the capo on; shapes are relative to it
     let progEntries = [];
-    const ret = E.retune(midi), frets = E.fretRow(midi), ivs = E.stringIntervals(midi);
+    const ret = E.retune(actual), frets = E.fretRow(actual), ivs = E.stringIntervals(actual);
     const open = openChordOf(midi);
     const sounding = midi.filter((m) => m != null);
     const lo = Math.min(...sounding), hi = Math.max(...sounding);
@@ -215,17 +231,18 @@
     if (state.scaleRoot == null) state.scaleRoot = open ? open.root : E.pc(sounding[0]);
     if (state.chordRoot == null) state.chordRoot = state.scaleRoot;
 
-    const stringCells = midi.map((m, i) => {
+    const stringCells = actual.map((m, i) => {
       if (m == null) return `<div class="string muted-string"><div class="num">STRING ${6 - i}</div><div class="note">X</div><div class="delta same">not used</div><div class="midi">&nbsp;</div></div>`;
       const r = ret[i];
       const cls = r > 0 ? 'up' : r < 0 ? 'down' : 'same';
       const txt = r > 0 ? `▲ +${r}` : r < 0 ? `▼ ${r}` : '• same';
-      return `<button class="string" data-midi="${m}" title="Pluck ${E.sciName(m)}"><div class="num">STRING ${6 - i}</div><div class="note">${E.noteName(m)}<sub>${E.octave(m)}</sub></div><div class="delta ${cls}">${txt}</div><div class="midi">MIDI ${m}</div></button>`;
+      const capoLine = capo ? `<div class="capo-note">capo: ${E.noteName(m + capo)}<sub>${E.octave(m + capo)}</sub></div>` : '';
+      return `<button class="string" data-midi="${m + capo}" title="Pluck ${E.sciName(m + capo)}"><div class="num">STRING ${6 - i}</div><div class="note">${E.noteName(m)}<sub>${E.octave(m)}</sub></div><div class="delta ${cls}">${txt}</div><div class="midi">MIDI ${m}</div>${capoLine}</button>`;
     }).join('');
     const fretCells = frets.map((f, i) => `<span>${f == null ? '' : `<span class="f" title="String ${6 - i}, fret ${f} matches open string ${5 - i}">fret ${f}</span>`}</span>`).join('') + '<span></span>';
 
     const facts = [
-      ['Open strings sound', open ? open.name : 'no single chord (' + E.describePitchSet(sounding.map(E.pc)) + ')'],
+      [capo ? `Open strings with capo ${capo}` : 'Open strings sound', open ? open.name : 'no single chord (' + E.describePitchSet(sounding.map(E.pc)) + ')'],
       ['Range', `${E.sciName(lo)} to ${E.sciName(hi)}, ${E.intervalName(hi - lo)}`],
       ['Strings retuned', changed === 0 ? 'none' : `${changed} of ${sounding.length}`],
       ['Adjacent intervals', ivs.map(shortInterval).join('  ')]
@@ -246,9 +263,10 @@
         <div>
           <div class="eyebrow">${esc(isCustom ? 'Custom tuning' : catName(t.category))}${pdfPage ? ` · page ${t.page} of the guide` : ''}</div>
           <h1 class="page-title">${esc(isCustom ? notesOf(midi) : t.name)}</h1>
-          <p class="lede">${isCustom ? 'A tuning you typed in. Everything below is computed from its notes.' : `<span class="mono">${esc(notesOf(midi))}</span>, low to high. ${open ? `The open strings sound a ${esc(open.name)} chord.` : 'The open strings do not form a single named chord.'}`}</p>
+          <p class="lede">${isCustom ? 'A tuning you typed in. Everything below is computed from its notes.' : `<span class="mono">${esc(notesOf(actual))}</span>, low to high. ${open ? `The open strings sound ${article(open.name)} ${esc(open.name)} chord${capo ? ' with the capo at fret ' + capo : ''}.` : 'The open strings do not form a single named chord.'}`}</p>
         </div>
         <div class="row">
+          <label class="field">Capo<select id="capo" aria-label="Capo fret">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<option value="${n}" ${n === capo ? 'selected' : ''}>${n === 0 ? 'none' : 'fret ' + n}</option>`).join('')}</select></label>
           <button class="btn gold" id="strumBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>
             Hear the open strings</button>
@@ -257,7 +275,7 @@
       </div>
       <div class="strings" id="strings">${stringCells}</div>
       <div class="fret-row" aria-label="Fret to match the next string">${fretCells}</div>
-      <p class="small muted" style="margin-top:6px">Tune the lowest string first. Then press the shown fret on each string to sound the open note of the next string up.</p>
+      <p class="small muted" style="margin-top:6px">Tune the lowest string first. Then press the shown fret on each string to sound the open note of the next string up.${capo ? ` With the capo at fret ${capo}, every shape below is drawn relative to the capo and every chord is named at sounding pitch: the same fingers, ${capo} half step${capo === 1 ? '' : 's'} higher.` : ''}</p>
       <div class="facts">${facts}</div>
 
       ${isCustom ? '' : h`<div class="section card" style="margin-top:var(--s5)">
@@ -309,7 +327,9 @@
             <label class="field grow">Chord names, in order<input type="text" id="progInput" placeholder="G  Em7  C  D7/F#  Am9" value="${esc(state.progression)}" autocomplete="off" spellcheck="false"></label>
             <button class="btn" type="submit">Show chords</button>
             <button class="btn gold" type="button" id="progPlay">Play all</button>
+            <button class="btn ghost" type="button" id="progCapo">Suggest capo</button>
           </form>
+          <p class="small" id="capoSuggest" hidden></p>
           <p class="small muted">Write chords the way a chart does: G, Em, Am7, Dmaj7, A9, Bm7b5, Cdim7, E7#9, F6/9, Gsus4, D7sus4, Cadd9, A13, and slash chords like G/B for a particular bass note. The progression stays put while you switch tunings, so you can compare how the same song falls in each one.</p>
           <div id="progOut"></div>
         </div>
@@ -317,6 +337,7 @@
       </div>`;
 
     // wire up
+    $('#capo').addEventListener('change', (e) => { setCapo(+e.target.value); renderTuning(); });
     $('#strumBtn').addEventListener('click', () => { Audio.strum(midi, 0.05); flashStrings(); });
     $('#arpBtn').addEventListener('click', () => { Audio.strum(midi, 0.22); flashStrings(0.22); });
     $('#strings').addEventListener('click', (e) => {
@@ -353,12 +374,34 @@
     $('#progInput').addEventListener('change', () => { setProgression($('#progInput').value); drawProgression(); });
     $('#progPlay').addEventListener('click', () => { setProgression($('#progInput').value); drawProgression(); playProgression(); });
     $('#progOut').addEventListener('click', playVoicing);
+    $('#progCapo').addEventListener('click', () => {
+      setProgression($('#progInput').value);
+      const chords = E.parseProgression(state.progression, D.CHORD_TYPES).filter((c) => c.ok);
+      const box = $('#capoSuggest');
+      box.hidden = false;
+      if (!chords.length) { box.textContent = 'Type a progression first.'; return; }
+      const ranked = E.suggestCapo(actual, chords, { maxCapo: 7 });
+      const best = ranked[0];
+      const current = ranked.find((r) => r.capo === capo);
+      const name = (n) => (n === 0 ? 'no capo' : 'capo at fret ' + n);
+      if (best.capo === capo) {
+        box.innerHTML = `Easiest shapes for this progression in ${esc(t.name)}: <b>${name(capo)}</b>, which is what you have now.${best.missing ? ' ' + best.missing + ' chord' + (best.missing === 1 ? ' has' : 's have') + ' no comfortable fingering at any capo position.' : ''}`;
+      } else {
+        box.innerHTML = `Easiest shapes for this progression in ${esc(t.name)}: <b>${name(best.capo)}</b> <button class="btn sm" type="button" id="applyCapo">Apply</button> <span class="muted">Runner-up: ${name(ranked[1].capo)}.${current ? ' Your current setting ranks ' + (ranked.indexOf(current) + 1) + ' of ' + ranked.length + '.' : ''}</span>`;
+        $('#applyCapo').addEventListener('click', () => { setCapo(best.capo); renderTuning(); $('#chordProg').scrollIntoView({ block: 'start' }); });
+      }
+    });
 
     drawFretboard();
     drawVoicings();
     if (state.chordTab === 'chart') drawChart();
     if (state.chordTab === 'prog') drawProgression();
 
+    function setCapo(n) {
+      state.capo = Math.max(0, Math.min(9, n | 0));
+      state.scaleRoot = null; state.chordRoot = null; // follow the new sounding key
+      try { localStorage.setItem('atg.capo', String(state.capo)); } catch (e) { /* storage unavailable */ }
+    }
     function setProgression(text) {
       state.progression = text;
       try { localStorage.setItem('atg.progression', text); } catch (e) { /* storage unavailable */ }
@@ -406,13 +449,13 @@
     }
     function drawFretboard() {
       const st = D.SCALE_TYPES.find((s) => s.id === state.scaleType);
-      $('#fretboardWrap').innerHTML = fretboardSVG(midi, st ? state.scaleRoot : null, st ? st.intervals : []);
+      $('#fretboardWrap').innerHTML = fretboardSVG(actual, st ? state.scaleRoot : null, st ? st.intervals : [], capo);
     }
     function voicingCard(label, v, rootPc) {
       const hasOpen = v.frets.some((f) => f === 0);
-      const pos = hasOpen || v.position <= 1 ? 'open position' : `${ordinal(v.position)} fret`;
+      const pos = hasOpen || v.position <= 1 ? (capo ? `at the capo` : 'open position') : `${ordinal(v.position + capo)} fret`;
       const notes = v.frets.map((f, i) => (f < 0 ? null : E.noteName(midi[i] + f))).filter(Boolean).join(' ');
-      return `<button class="voicing" data-frets="${v.frets.join(',')}" title="${esc(notes)}"><div class="vname">${esc(label)}</div>${diagramSVG(midi, v, rootPc)}<div class="vmeta">${v.barre ? 'barre, ' : ''}${pos}</div></button>`;
+      return `<button class="voicing" data-frets="${v.frets.join(',')}" title="${esc(notes)}"><div class="vname">${esc(label)}</div>${diagramSVG(midi, v, rootPc, capo)}<div class="vmeta">${v.barre ? 'barre, ' : ''}${pos}</div></button>`;
     }
     function drawVoicings() {
       const ct = D.CHORD_TYPES.find((c) => c.abbr === state.chordType);
@@ -424,7 +467,7 @@
     }
     function drawChart() {
       const chart = E.chordChart(midi, D.CHORD_TYPES, { perChord: 2 });
-      $('#chartInfo').textContent = `A chart in the tuning's natural key of ${E.NOTE_NAMES[chart.key]}, balancing open position and bar chords across major, minor and seventh types, the way the book's chord pages do.`;
+      $('#chartInfo').textContent = `A chart in the ${capo ? 'capoed ' : ''}tuning's natural key of ${E.NOTE_NAMES[chart.key]}, balancing open position and bar chords across major, minor and seventh types, the way the book's chord pages do.${capo ? ' Chord names are sounding pitch with the capo at fret ' + capo + '.' : ''}`;
       $('#chartVoicings').innerHTML = chart.chords.map((c) => voicingCard(c.label, c.voicing, c.root)).join('');
     }
   }

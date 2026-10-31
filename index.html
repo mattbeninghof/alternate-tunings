@@ -330,34 +330,142 @@ select { max-width: 100%; min-height: 40px; }
   <defs>
     <!-- Brand mark: a parlor guitar, upright, on marigold -->
     <symbol id="mark" viewBox="0 0 64 64">
-      <rect x="4" y="4" width="56" height="56" rx="14" fill="#E8A33D"/>
-      <path d="M28.5 10h7v12h-7z" fill="#1F4D3A"/>
-      <rect x="26" y="3.5" width="12" height="9" rx="2.5" fill="#1F4D3A"/>
-      <path d="M23.5 33C11 35 9 58 32 58s21-23 8.5-25c4.5-3.5 4-16-8.5-16S19 29.5 23.5 33z" fill="#1F4D3A"/>
-      <circle cx="32" cy="33" r="4.5" fill="#E8A33D"/>
-      <circle cx="32" cy="33" r="2.6" fill="#1F4D3A"/>
-      <rect x="26.5" y="46" width="11" height="2.6" rx="1.3" fill="#E8A33D"/>
-      <path d="M30.6 12v36M32 12v36M33.4 12v36" stroke="#F6F1E7" stroke-width=".55" opacity=".8"/>
-      <path d="M29 15h6M29 18h6M29 21h6" stroke="#E8A33D" stroke-width=".7" opacity=".8"/>
-      <circle cx="24" cy="6.5" r="1.4" fill="#E8A33D"/><circle cx="24" cy="10" r="1.4" fill="#E8A33D"/>
-      <circle cx="40" cy="6.5" r="1.4" fill="#E8A33D"/><circle cx="40" cy="10" r="1.4" fill="#E8A33D"/>
-    </symbol>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#E8A33D"/>
+  <path d="M29 10
+           Q28 10 28 11.5
+           L28.6 19
+           Q28.7 20 30 20
+           L30 26
+           C25.5 27 23 30 23 33.5
+           C23 36.2 24.6 38.1 26.3 39.4
+           C22.1 41.1 19 44.4 19 48
+           C19 53.1 24.7 55 32 55
+           C39.3 55 45 53.1 45 48
+           C45 44.4 41.9 41.1 37.7 39.4
+           C39.4 38.1 41 36.2 41 33.5
+           C41 30 38.5 27 34 26
+           L34 20
+           Q35.3 20 35.4 19
+           L36 11.5
+           Q36 10 35 10 Z"
+        fill="#1F4D3A"/>
+  <circle cx="32" cy="36.5" r="4.2" fill="#E8A33D"/>
+  <circle cx="32" cy="36.5" r="2.6" fill="#1F4D3A"/>
+  <rect x="27.5" y="47" width="9" height="2.2" rx="1.1"
+        fill="#E8A33D"/>
+  <path d="M30.9 19 L30.5 48
+           M32 19 V48
+           M33.1 19 L33.5 48"
+        fill="none" stroke="#F6F1E7" stroke-width="0.45"
+        stroke-linecap="round"/>
+</symbol>
     <!-- Parlor guitar, hand-drawn line art -->
     <symbol id="art-guitar" viewBox="0 0 240 120">
-      <g fill="none" stroke="#F6F1E7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M70 40C56 26 14 28 12 60s44 34 58 20c8-8 10 4 28 4 26 0 26-48 0-48-18 0-20 12-28 4z"/>
-        <path d="M34 50v20" stroke="#E8A33D" stroke-width="3"/>
-        <circle cx="94" cy="60" r="9"/>
-        <circle cx="94" cy="60" r="6.3" stroke="#E8A33D" stroke-width="1.2"/>
-        <path d="M117 54h79M117 66h79"/>
-        <path d="M126 54v12M134 54v12M142 54v12M150 54v12M158 54v12M166 54v12M174 54v12M182 54v12M190 54v12" stroke-width=".8"/>
-        <path d="M196 52l30-6q6-1 6 5v18q0 6-6 5l-30-6z"/>
-        <path d="M196 51v18" stroke="#E8A33D" stroke-width="2.5"/>
-        <path d="M204 50v-8M214 48v-8M224 46v-8M204 70v8M214 72v8M224 74v8" stroke-width="1.5"/>
-        <path d="M200 42h8M210 40h8M220 38h8M200 78h8M210 80h8M220 82h8" stroke="#E8A33D" stroke-width="3"/>
-        <path d="M36 55.5h160M36 57.3h160M36 59.1h160M36 60.9h160M36 62.7h160M36 64.5h160" stroke-width=".6"/>
-      </g>
-    </symbol>
+  <!-- Parlor body: broad lower bout, narrow waist, smaller upper bout. -->
+  <path d="M112 53
+           C111 39 104 29 93 28
+           C82 27 74 33 66 40
+           C62 44 59 43 54 39
+           C44 31 30 31 20 38
+           C10 45 8 53 8 60
+           C8 69 11 78 21 84
+           C32 91 45 89 55 81
+           C60 77 63 76 67 80
+           C75 87 84 92 95 90
+           C106 88 112 77 112 67
+           Z"
+        fill="none" stroke="#F6F1E7" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Rosette and soundhole. -->
+  <circle cx="87" cy="60" r="10.5"
+          fill="#1F4D3A" stroke="#F6F1E7" stroke-width="0.8"/>
+  <circle cx="87" cy="60" r="8.5"
+          fill="none" stroke="#E8A33D" stroke-width="1.3"/>
+  <circle cx="87" cy="60" r="6.8"
+          fill="none" stroke="#F6F1E7" stroke-width="0.65"/>
+
+  <!-- Fingerboard extends over the upper bout. -->
+  <path d="M102 54 L198 55.5 L198 64.5 L102 66 Z"
+        fill="#1F4D3A" stroke="#F6F1E7" stroke-width="1.2"
+        stroke-linejoin="round"/>
+
+  <!-- Equal-tempered fret spacing, progressively closer to the body. -->
+  <path d="M189.02 55.36 V64.64
+           M180.55 55.23 V64.77
+           M172.56 55.10 V64.90
+           M165.01 54.98 V65.02
+           M157.89 54.87 V65.13
+           M151.17 54.77 V65.23
+           M144.82 54.67 V65.33
+           M138.84 54.58 V65.42
+           M133.18 54.49 V65.51
+           M127.85 54.40 V65.60
+           M122.82 54.33 V65.67
+           M118.07 54.25 V65.75
+           M113.58 54.18 V65.82
+           M109.35 54.11 V65.89
+           M105.35 54.05 V65.95"
+        fill="none" stroke="#F6F1E7" stroke-width="0.55"
+        stroke-linecap="round"/>
+
+  <!-- Solid headstock and three tuners on each side. -->
+  <path d="M198 55.5 L221 48
+           Q226 46.5 227 51
+           L227 69
+           Q227 73.5 221 72
+           L198 64.5 Z"
+        fill="#1F4D3A" stroke="#F6F1E7" stroke-width="2"
+        stroke-linejoin="round"/>
+  <path d="M204 53.5 V47
+           M213 50.5 V43.5
+           M222 48.5 V40.5
+           M204 66.5 V73
+           M213 69.5 V76.5
+           M222 71.5 V79.5"
+        fill="none" stroke="#F6F1E7" stroke-width="1"
+        stroke-linecap="round"/>
+  <path d="M201.5 46.5 H206.5
+           M210.5 43 H215.5
+           M219.5 40 H224.5
+           M201.5 73.5 H206.5
+           M210.5 77 H215.5
+           M219.5 80 H224.5"
+        fill="none" stroke="#E8A33D" stroke-width="2.6"
+        stroke-linecap="round"/>
+  <circle cx="204" cy="56" r="1" fill="#E8A33D"/>
+  <circle cx="213" cy="54" r="1" fill="#E8A33D"/>
+  <circle cx="222" cy="52" r="1" fill="#E8A33D"/>
+  <circle cx="204" cy="64" r="1" fill="#E8A33D"/>
+  <circle cx="213" cy="66" r="1" fill="#E8A33D"/>
+  <circle cx="222" cy="68" r="1" fill="#E8A33D"/>
+
+  <!-- Shaped bridge and cream saddle. -->
+  <path d="M35 50
+           Q38 48.5 42 50
+           L43 56
+           L43 64
+           L42 70
+           Q38 71.5 35 70
+           L36 64 L36 56 Z"
+        fill="#E8A33D"/>
+  <path d="M40 53.5 L39.5 66.5"
+        stroke="#F6F1E7" stroke-width="1.2"
+        stroke-linecap="round"/>
+
+  <!-- Six strings narrow gently toward the nut. -->
+  <path d="M40 54 L198 56 L204 56
+           M40 56.4 L198 57.6 L213 54
+           M40 58.8 L198 59.2 L222 52
+           M40 61.2 L198 60.8 L222 68
+           M40 63.6 L198 62.4 L213 66
+           M40 66 L198 64 L204 64"
+        fill="none" stroke="#F6F1E7" stroke-width="0.45"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M198 55.5 V64.5"
+        stroke="#E8A33D" stroke-width="1.8"
+        stroke-linecap="round"/>
+</symbol>
     <!-- Tuning peg and headstock, for the identify page -->
     <symbol id="art-peg" viewBox="0 0 200 160">
       <g fill="none" stroke="#1F4D3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">

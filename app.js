@@ -92,7 +92,7 @@
         } else {
           s += `<text class="name" x="${x}" y="${y + 3}" text-anchor="middle">${E.noteName(m)}</text>`;
         }
-        s += `<rect class="hit" x="${x - fretW / 2}" y="${y - rowH / 2}" width="${fretW}" height="${rowH}" data-midi="${m}"><title>${E.sciName(m)}, string ${nStr - si} fret ${f}</title></rect>`;
+        s += `<rect class="hit" x="${x - fretW / 2}" y="${y - rowH / 2}" width="${fretW}" height="${rowH}" data-midi="${m}" data-string="${nStr - si}" data-fret="${f}"></rect>`;
       }
     }
     if (capo) {
@@ -146,14 +146,14 @@
 
   function circleSVG() {
     const R = 86, cx = 110, cy = 110;
-    let s = `<svg viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="Circle of notes"><circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#E0D7C7" stroke-width="2"/>`;
+    let s = `<svg viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="Circle of notes"><circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#C2BBAB" stroke-width="1" stroke-dasharray="3 3"/>`;
     for (let i = 0; i < 12; i++) {
       const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
       const x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R;
       const sharp = E.NOTE_NAMES[i].includes('#');
-      s += `<circle cx="${x}" cy="${y}" r="15" fill="${sharp ? '#1F4D3A' : '#E8A33D'}"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" font-weight="600" fill="${sharp ? '#fff' : '#2A2622'}" font-family="Inter, sans-serif">${E.NOTE_NAMES[i]}</text>`;
+      s += `<circle cx="${x}" cy="${y}" r="15" fill="${sharp ? '#1C1B19' : '#F7F4EC'}" stroke="#1C1B19" stroke-width="1.2"/><text x="${x}" y="${y + 3.5}" text-anchor="middle" font-size="10" font-weight="500" fill="${sharp ? '#F7F4EC' : '#1C1B19'}" font-family="JetBrains Mono, monospace">${E.NOTE_NAMES[i]}</text>`;
     }
-    s += `<path d="M${cx + 30} ${cy - 40} A50 50 0 0 1 ${cx + 48} ${cy - 10}" fill="none" stroke="#9A918A" stroke-width="1.5" marker-end="url(#arrow)"/><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#9A918A"/></marker></defs><text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="10" fill="#5E5750" font-family="Inter, sans-serif">one fret = one step clockwise</text></svg>`;
+    s += `<path d="M${cx + 30} ${cy - 40} A50 50 0 0 1 ${cx + 48} ${cy - 10}" fill="none" stroke="#F04E23" stroke-width="1.5" marker-end="url(#arrow)"/><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#F04E23"/></marker></defs><text x="${cx}" y="${cy + 3}" text-anchor="middle" font-size="7.5" letter-spacing=".08" fill="#8A867C" font-family="JetBrains Mono, monospace">ONE FRET = ONE STEP CLOCKWISE</text></svg>`;
     return s;
   }
 
@@ -166,45 +166,53 @@
     const groups = [{ id: 'standard', name: 'Reference' }].concat(D.CATEGORIES);
     let out = '', any = false;
     for (const g of groups) {
-      const items = D.TUNINGS.filter((t) => t.category === g.id && match(t));
+      const all = D.TUNINGS.filter((t) => t.category === g.id);
+      const items = all.filter(match);
       if (!items.length) continue;
       any = true;
-      out += `<div class="nav-group"><div class="nav-group-title">${esc(g.name)}</div>`;
+      out += `<div class="nav-group"><div class="nav-group-title"><span>${esc(g.name)}</span><span>${String(items.length).padStart(2, '0')}/${String(all.length).padStart(2, '0')}</span></div>`;
       for (const t of items) {
         const active = state.route === 'tuning' && state.tuning && state.tuning.id === t.id;
-        out += `<a class="nav-link${active ? ' active' : ''}" href="#t/${t.id}" ${active ? 'aria-current="page"' : ''}>${esc(t.name)}<span class="notes">${esc(notesOf(t.midi))}</span></a>`;
+        const idx = String(D.TUNINGS.indexOf(t)).padStart(2, '0');
+        out += `<a class="nav-link${active ? ' active' : ''}" href="#t/${t.id}" ${active ? 'aria-current="page"' : ''}><span class="idx">[${idx}]</span><span>${esc(t.name)}</span><span class="notes">${esc(notesOf(t.midi))}</span></a>`;
       }
       out += '</div>';
     }
-    if (!any) out = `<div class="nav-empty">No tuning named or spelled like "${esc(q)}". Try the <a href="#find" style="color:var(--marigold)">identifier</a> to find the closest match.</div>`;
+    if (!any) out = `<div class="nav-empty">No tuning named or spelled like "${esc(q)}". Try the <a href="#find">identifier</a> to find the closest match.</div>`;
     nav.innerHTML = out;
-    document.querySelectorAll('.nav-tools .nav-link').forEach((a) => a.classList.toggle('active', a.dataset.route === state.route));
+    document.querySelectorAll('.rail-nav .nav-link[data-route]').forEach((a) => a.classList.toggle('active', a.dataset.route === state.route));
   }
 
   // ---------- views ----------
   function renderHome() {
     const el = $('#view-home');
-    const cats = D.CATEGORIES.map((c) => {
+    const cats = D.CATEGORIES.map((c, i) => {
       const items = D.TUNINGS.filter((t) => t.category === c.id);
-      return h`<div class="cat"><h3>${esc(c.name)}</h3><p>${esc(c.intro.split('. ').slice(0, 2).join('. '))}.</p><ul>${items.map((t) => `<li><a href="#t/${t.id}">${esc(t.name)}<span>${esc(notesOf(t.midi))}</span></a></li>`).join('')}</ul></div>`;
+      return h`<div class="cat"><h3><span>${esc(c.name)}</span><span class="idx">[0${i + 1}] ${String(items.length).padStart(2, '0')}</span></h3><p>${esc(c.intro.split('. ').slice(0, 2).join('. '))}.</p><ul>${items.map((t) => `<li><a href="#t/${t.id}">${esc(t.name)}<span>${esc(notesOf(t.midi))}</span></a></li>`).join('')}</ul></div>`;
     }).join('');
     el.innerHTML = h`
+      <div class="pad">
       <div class="hero">
         <div>
-          <div class="eyebrow">After Bill Sethares' Alternate Tuning Guide</div>
+          <div class="eyebrow"><span>After Bill Sethares</span><span>38 tunings</span><span>4 families</span><b>Edition 2001, computed 2026</b></div>
           <h1 class="page-title">Retune that guitar now.</h1>
           <p class="lede">${esc(D.GUIDE.whyRetune.split('. ').slice(0, 4).join('. '))}.</p>
           <div class="row">
-            <a class="btn" href="#t/open-g">Start with Open G</a>
+            <a class="btn gold" href="#t/open-g">Start with Open G</a>
             <a class="btn ghost" href="#find">Identify a tuning</a>
             <a class="btn ghost" href="#guide">How the book works</a>
           </div>
         </div>
-        <div class="hero-art" aria-hidden="true"><svg viewBox="0 0 200 160" width="240" height="192"><use href="#art-peg"/></svg></div>
+        <div class="hero-art" aria-hidden="true">
+          <svg viewBox="0 0 240 120"><use href="#art-guitar"/></svg>
+          <div class="annot" style="left:4%;top:4%;animation-delay:.3s">Open G<small>D G D G B D, six strings, one chord</small></div>
+          <div class="annot" style="left:52%;top:72%;animation-delay:.9s">Capo 2<small>same shapes, sounds in A</small></div>
+          <div class="annot" style="left:70%;top:6%;animation-delay:1.5s">Fret 5 7 5 4 3<small>tune each string from the last</small></div>
+        </div>
       </div>
-      <hr class="rule">
-      <div class="cat-grid">${cats}</div>
-      <div class="card" style="margin-top:var(--s5)">
+      </div>
+      <div class="cat-grid" style="margin-top:var(--s6)">${cats}</div>
+      <div class="card">
         <h2>What you get for each tuning</h2>
         <div class="two-col">
           <div><p><b>Tuning strip.</b> Every string with its sounding pitch, MIDI number, how many half steps to retune from standard, and which fret matches the next string, exactly as the book lays it out.</p>
@@ -258,14 +266,19 @@
     const chordRoots = E.NOTE_NAMES.map((n, i) => `<option value="${i}" ${i === state.chordRoot ? 'selected' : ''}>${n}</option>`).join('');
     const chordTypes = D.CHORD_TYPES.map((c) => `<option value="${c.abbr}" ${c.abbr === state.chordType ? 'selected' : ''}>${c.name} (${c.abbr})</option>`).join('');
 
+    const order = D.TUNINGS;
+    const pos = order.indexOf(t);
+    const prev = pos > 0 ? order[pos - 1] : null, next = pos >= 0 && pos < order.length - 1 ? order[pos + 1] : null;
     el.innerHTML = h`
+      <div class="pad">
       <div class="tune-head">
         <div>
-          <div class="eyebrow">${esc(isCustom ? 'Custom tuning' : catName(t.category))}${pdfPage ? ` · page ${t.page} of the guide` : ''}</div>
-          <h1 class="page-title">${esc(isCustom ? notesOf(midi) : t.name)}</h1>
-          <p class="lede">${isCustom ? 'A tuning you typed in. Everything below is computed from its notes.' : `<span class="mono">${esc(notesOf(actual))}</span>, low to high. ${open ? `The open strings sound ${article(open.name)} ${esc(open.name)} chord${capo ? ' with the capo at fret ' + capo : ''}.` : 'The open strings do not form a single named chord.'}`}</p>
+          <div class="eyebrow"><b>${esc(isCustom ? 'Custom tuning' : catName(t.category))}</b>${pos >= 0 ? `<span>[${String(pos).padStart(2, '0')}/${String(order.length - 1).padStart(2, '0')}]</span>` : ''}${pdfPage ? `<span>page ${t.page} of the guide</span>` : ''}<span>${esc(notesOf(actual))}</span></div>
+          <h1 class="page-title">${esc(isCustom ? notesOf(actual) : t.name)}</h1>
+          <p class="lede">${isCustom ? 'A tuning you typed in. Everything below is computed from its notes.' : `${open ? `The open strings sound ${article(open.name)} ${esc(open.name)} chord${capo ? ' with the capo at fret ' + capo : ''}.` : 'The open strings do not form a single named chord.'} ${t.songs && t.songs.length ? 'Heard in ' + esc(t.songs[0]) + '.' : ''}`}</p>
         </div>
         <div class="row">
+          ${pos >= 0 ? `<div class="pager">${prev ? `<a class="btn ghost sm" href="#t/${prev.id}" title="${esc(prev.name)}">← ${esc(prev.name)}</a>` : ''}${next ? `<a class="btn ghost sm" href="#t/${next.id}" title="${esc(next.name)}">${esc(next.name)} →</a>` : ''}</div>` : ''}
           <label class="field">Capo<select id="capo" aria-label="Capo fret">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<option value="${n}" ${n === capo ? 'selected' : ''}>${n === 0 ? 'none' : 'fret ' + n}</option>`).join('')}</select></label>
           <button class="btn gold" id="strumBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>
@@ -277,8 +290,9 @@
       <div class="fret-row" aria-label="Fret to match the next string">${fretCells}</div>
       <p class="small muted" style="margin-top:6px">Tune the lowest string first. Then press the shown fret on each string to sound the open note of the next string up.${capo ? ` With the capo at fret ${capo}, every shape below is drawn relative to the capo and every chord is named at sounding pitch: the same fingers, ${capo} half step${capo === 1 ? '' : 's'} higher.` : ''}</p>
       <div class="facts">${facts}</div>
+      </div>
 
-      ${isCustom ? '' : h`<div class="section card" style="margin-top:var(--s5)">
+      ${isCustom ? '' : h`<div class="section card">
         <h2>About the ${esc(t.name)} tuning</h2>
         <div class="commentary">${t.text.split(/(?<=\.)\s+(?=[A-Z"'(])/).reduce((acc, s, i) => { const k = Math.floor(i / 3); (acc[k] = acc[k] || []).push(s); return acc; }, []).map((p) => `<p>${esc(p.join(' '))}</p>`).join('')}</div>
         ${t.songs ? `<ul class="songs" aria-label="Songs in this tuning">${t.songs.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
@@ -293,22 +307,27 @@
       </div>
 
       <div class="section card">
-        <div class="row" style="margin-bottom:var(--s3)">
-          <h2 class="grow" style="margin:0">Fretboard and scales</h2>
-          <label class="field">Root<select id="scaleRoot">${scaleRoots}</select></label>
-          <label class="field">Scale<select id="scaleType">${scaleTypes}</select></label>
-          <button class="btn ghost sm" id="scaleClear">${state.scaleType === 'none' ? 'Show scale' : 'Notes only'}</button>
+        <div class="sheet-head">
+          <h2>Fretboard and scales</h2>
+          <span class="coord-read" id="fbCoord">[hover a note]</span>
+          <div class="controls">
+            <label class="field">Root<select id="scaleRoot">${scaleRoots}</select></label>
+            <label class="field">Scale<select id="scaleType">${scaleTypes}</select></label>
+            <button class="btn ghost sm" id="scaleClear">${state.scaleType === 'none' ? 'Show scale' : 'Notes only'}</button>
+          </div>
         </div>
         <div class="fretboard-wrap" id="fretboardWrap"></div>
-        <div class="legend" style="margin-top:var(--s2)"><span><i class="root"></i>root</span><span><i class="tone"></i>scale tone</span><span class="muted">String 1 on top, as in the book. Click any note to hear it.</span></div>
+        <div class="legend" style="margin-top:var(--s2)"><span><i class="root"></i>root</span><span><i class="tone"></i>scale tone</span><span>String 1 on top, as in the book. Click any note to hear it.</span></div>
       </div>
 
       <div class="section card">
-        <div class="row" style="margin-bottom:var(--s3)">
-          <h2 class="grow" style="margin:0">Chords</h2>
-          <button class="btn sm ${state.chordTab === 'find' ? '' : 'ghost'}" data-tab="find">Find a chord</button>
-          <button class="btn sm ${state.chordTab === 'chart' ? '' : 'ghost'}" data-tab="chart">Chord chart</button>
-          <button class="btn sm ${state.chordTab === 'prog' ? '' : 'ghost'}" data-tab="prog">Progression</button>
+        <div class="sheet-head">
+          <h2>Chords</h2>
+          <div class="controls">
+            <button class="btn sm ${state.chordTab === 'find' ? '' : 'ghost'}" data-tab="find">Find a chord</button>
+            <button class="btn sm ${state.chordTab === 'chart' ? '' : 'ghost'}" data-tab="chart">Chord chart</button>
+            <button class="btn sm ${state.chordTab === 'prog' ? '' : 'ghost'}" data-tab="prog">Progression</button>
+          </div>
         </div>
         <div id="chordFind" ${state.chordTab === 'find' ? '' : 'hidden'}>
           <div class="row" style="margin-bottom:var(--s4)">
@@ -350,6 +369,23 @@
     $('#scaleType').addEventListener('change', (e) => { state.scaleType = e.target.value; drawFretboard(); });
     $('#scaleClear').addEventListener('click', () => { state.scaleType = state.scaleType === 'none' ? 'major' : 'none'; $('#scaleClear').textContent = state.scaleType === 'none' ? 'Show scale' : 'Notes only'; drawFretboard(); });
     $('#fretboardWrap').addEventListener('click', (e) => { const r = e.target.closest('rect[data-midi]'); if (r) Audio.pluck(+r.dataset.midi); });
+    const wrap = $('#fretboardWrap');
+    const callout = document.createElement('div'); callout.className = 'callout';
+    wrap.addEventListener('mousemove', (e) => {
+      const r = e.target.closest('rect[data-midi]');
+      if (!r) { callout.classList.remove('show'); return; }
+      const m = +r.dataset.midi, str = +r.dataset.string, fret = +r.dataset.fret;
+      const st = D.SCALE_TYPES.find((x) => x.id === state.scaleType);
+      let role = '';
+      if (st) { const d = E.mod12(m - state.scaleRoot); const i = st.intervals.indexOf(d); if (i === 0) role = 'root'; else if (i > 0) role = 'degree ' + (i + 1); }
+      callout.textContent = `${E.sciName(m)}${role ? ' · ' + role : ''} · string ${str} · fret ${fret}`;
+      const rb = r.getBoundingClientRect(), wb = wrap.getBoundingClientRect();
+      callout.style.left = (rb.left - wb.left + rb.width / 2 + wrap.scrollLeft) + 'px';
+      callout.style.top = (rb.top - wb.top) + 'px';
+      callout.classList.add('show');
+      $('#fbCoord').textContent = `[string ${str}, fret ${fret}] ${E.sciName(m)} · ${E.freq(m).toFixed(1)} Hz`;
+    });
+    wrap.addEventListener('mouseleave', () => { callout.classList.remove('show'); $('#fbCoord').textContent = '[hover a note]'; });
     el.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => {
       state.chordTab = b.dataset.tab;
       el.querySelectorAll('[data-tab]').forEach((x) => x.classList.toggle('ghost', x.dataset.tab !== state.chordTab));
@@ -450,6 +486,7 @@
     function drawFretboard() {
       const st = D.SCALE_TYPES.find((s) => s.id === state.scaleType);
       $('#fretboardWrap').innerHTML = fretboardSVG(actual, st ? state.scaleRoot : null, st ? st.intervals : [], capo);
+      $('#fretboardWrap').appendChild(callout); // the SVG redraw replaces the wrap's children
     }
     function voicingCard(label, v, rootPc) {
       const hasOpen = v.frets.some((f) => f === 0);
@@ -475,9 +512,11 @@
   function renderFind(prefill) {
     const el = $('#view-find');
     el.innerHTML = h`
-      <div class="eyebrow">What about other tunings?</div>
+      <div class="pad">
+      <div class="eyebrow"><b>What about other tunings?</b><span>cross index, computed</span></div>
       <h1 class="page-title">Identify a tuning</h1>
       <p class="lede">Type six notes, low string to high. If the tuning is a transposition or a one-string variant of a tuning in the guide, you can use that chart with the adjustment shown. This is the book's cross index, computed for any tuning.</p>
+      </div>
       <div class="card">
         <form class="find-form" id="findForm">
           <label class="field" style="font-size:.78rem">Six notes, low to high (X for an unused string)
@@ -523,15 +562,17 @@
     const crossRows = D.CROSS_INDEX.map((r) => `<tr><td>${esc(r.name)}</td><td class="mono"><a href="#c/${r.notes.split(' ').map((n) => n.replace('#', 's')).join('-')}">${esc(r.notes)}</a></td><td>${esc(r.relation)}</td></tr>`).join('');
     const instRows = D.OTHER_INSTRUMENTS.map((r) => `<tr><td>${esc(r.instrument)}</td><td class="mono">${esc(r.notes)}</td><td>${esc(r.relation)}</td></tr>`).join('');
     el.innerHTML = h`
+      <div class="pad">
       <div class="hero">
         <div>
-          <div class="eyebrow">How the book works</div>
+          <div class="eyebrow"><b>How the book works</b><span>method, not charts</span></div>
           <h1 class="page-title">Four tricks and a circle</h1>
           <p class="lede">The Alternate Tuning Guide gives each tuning two pages: a tuning page with retuning steps, scales and the fretboard, and a chord page with about thirty chords. The rest of the book is a method for turning those seeds into every chord you need. Here is that method.</p>
         </div>
-        <div class="hero-art" aria-hidden="true"><svg viewBox="0 0 220 120" width="260" height="142"><use href="#art-book"/></svg></div>
+        <div class="hero-art" aria-hidden="true" style="max-width:360px;justify-self:end"><svg viewBox="0 0 220 120"><use href="#art-book"/></svg></div>
       </div>
-      <div class="card" style="margin-top:var(--s5)">
+      </div>
+      <div class="card">
         <h2>Reading a tuning</h2>
         <p>${esc(G.retuning)}</p>
         <p class="small muted" style="margin:0">Sethares lists MIDI numbers an octave above sounding pitch, the written-guitar convention. This app uses sounding pitch (standard low E is 40). Subtract 12 from the app's numbers to match the book, or add 12 to the book's numbers to drive a synth at the right octave.</p>
@@ -615,10 +656,18 @@
     $('#side').classList.remove('open');
     $('#menuBtn').setAttribute('aria-expanded', 'false');
     window.scrollTo({ top: 0, behavior: 'auto' });
+    requestAnimationFrame(() => { const f = $('#frame'); if (f) { const r = f.getBoundingClientRect(); const x0 = Math.round(r.left + window.scrollX), x1 = Math.round(r.right + window.scrollX), hh = Math.round(f.offsetHeight); $('#coordTL').textContent = `[${x0},0]`; $('#coordTR').textContent = `[${x1},0]`; $('#coordBL').textContent = `[${x0},${hh}]`; $('#coordBR').textContent = `[${x1},${hh}]`; } });
   }
 
   // ---------- boot ----------
-  $('#search').addEventListener('input', (e) => { state.filter = e.target.value; renderNav(); if (window.innerWidth <= 900) $('#side').classList.add('open'); });
+  $('#search').addEventListener('input', (e) => { state.filter = e.target.value; renderNav(); openPanel(true); });
+  function openPanel(open) { $('#side').classList.toggle('open', open); $('#menuBtn').setAttribute('aria-expanded', String(open)); }
+  function updateCoords() {
+    const f = $('#frame'); if (!f) return;
+    const r = f.getBoundingClientRect(); const x0 = Math.round(r.left + window.scrollX), x1 = Math.round(r.right + window.scrollX), h = Math.round(f.offsetHeight);
+    $('#coordTL').textContent = `[${x0},0]`; $('#coordTR').textContent = `[${x1},0]`; $('#coordBL').textContent = `[${x0},${h}]`; $('#coordBR').textContent = `[${x1},${h}]`;
+  }
+  window.addEventListener('resize', updateCoords);
   $('#search').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const first = $('#sideNav .nav-link');
@@ -626,11 +675,9 @@
       else location.hash = '#find/' + encodeURIComponent(state.filter);
     }
   });
-  $('#menuBtn').addEventListener('click', () => {
-    const side = $('#side');
-    const open = side.classList.toggle('open');
-    $('#menuBtn').setAttribute('aria-expanded', String(open));
-  });
+  $('#menuBtn').addEventListener('click', () => { openPanel(!$('#side').classList.contains('open')); if ($('#side').classList.contains('open')) $('#search').focus(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') openPanel(false); });
   window.addEventListener('hashchange', render);
   render();
+  updateCoords();
 })();

@@ -20,7 +20,7 @@ Plain HTML, CSS and JavaScript. No build step, no dependencies, relative paths o
 - `audio.js` extended Karplus-Strong string synthesis, body EQ, room and compressor
 - `engine.js` music theory: retune and fret rows, chord identification, chord symbol parsing, voicing search, tuning identifier
 - `data.js` the 39 tunings, interval tables, cross index and guide text
-- `icons/`, `manifest.webmanifest` favicon set and PWA manifest
+- `icons/`, `manifest.webmanifest` favicon set, PWA manifest, and desktop icons: `app-icon.svg` is the master, `AlternateTuningGuide.icns` is for macOS, `app-icon.ico` for Windows, `app-icon-1024.png` for anything else
 - `test/engine.test.js` node test suite for the engine (`node --test test/`)
 
 ## Routes

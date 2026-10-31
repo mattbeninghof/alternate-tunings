@@ -191,28 +191,28 @@
       return h`<div class="cat"><h3><span>${esc(c.name)}</span><span class="idx">[0${i + 1}] ${String(items.length).padStart(2, '0')}</span></h3><p>${esc(c.intro.split('. ').slice(0, 2).join('. '))}.</p><ul>${items.map((t) => `<li><a href="#t/${t.id}">${esc(t.name)}<span>${esc(notesOf(t.midi))}</span></a></li>`).join('')}</ul></div>`;
     }).join('');
     el.innerHTML = h`
-      <div class="pad">
-      <div class="hero">
+      <section class="sheet-hero" id="homeHero">
+        <span class="cross tl"></span><span class="cross tr"></span><span class="cross bl"></span><span class="cross br"></span><span class="ruler-v l"></span><span class="ruler-v r"></span>
+        <div class="hero-art" id="heroArt">
+          <svg viewBox="0 0 240 120" aria-hidden="true"><use href="#art-guitar"/></svg>
+          <button class="hotspot" style="left:14.5%;top:50%" data-title="Retune row" data-tip="How far each string moves from standard, in half steps, string by string." aria-label="Retune row"></button>
+          <button class="hotspot" style="left:31.6%;top:50%" data-title="Open chord" data-tip="What the six open strings sound together. Open G rings a G major; Modal D rings a Dsus4." aria-label="Open chord"></button>
+          <button class="hotspot" style="left:76.6%;top:50%" data-title="Capo" data-tip="Clamp any fret: the shapes stay put and every chord is renamed at sounding pitch." aria-label="Capo"></button>
+          <button class="hotspot" style="left:87%;top:37%" data-title="Fret row" data-tip="Tune each string from the one below it: the fret that sounds the next open string." aria-label="Fret row"></button>
+          <div class="annot" id="heroAnnot" role="status"></div>
+        </div>
+        <div class="cursor-tip" id="cursorTip"><span class="xy">X:0000 Y:0000</span><span class="hint">Hover a marker</span></div>
+      </section>
+      <div class="headline-block">
         <div>
           <div class="eyebrow"><span>After Bill Sethares</span><span>38 tunings</span><span>4 families</span><b>Edition 2001, computed 2026</b></div>
-          <h1 class="page-title">Retune that guitar now.</h1>
-          <p class="lede">${esc(D.GUIDE.whyRetune.split('. ').slice(0, 4).join('. '))}.</p>
-          <div class="row">
-            <a class="btn gold" href="#t/open-g">Start with Open G</a>
-            <a class="btn ghost" href="#find">Identify a tuning</a>
-            <a class="btn ghost" href="#guide">How the book works</a>
-          </div>
+          <h1 class="page-title" style="margin-top:14px">Retune that guitar now</h1>
         </div>
-        <div class="hero-art" aria-hidden="true">
-          <svg viewBox="0 0 240 120"><use href="#art-guitar"/></svg>
-          <div class="annot" style="left:4%;top:4%;animation-delay:.3s">Open G<small>D G D G B D, six strings, one chord</small></div>
-          <div class="annot" style="left:52%;top:72%;animation-delay:.9s">Capo 2<small>same shapes, sounds in A</small></div>
-          <div class="annot" style="left:70%;top:6%;animation-delay:1.5s">Fret 5 7 5 4 3<small>tune each string from the last</small></div>
-        </div>
+        <div class="desc"><p>${esc(D.GUIDE.whyRetune.split('. ').slice(0, 3).join('. '))}.</p><p class="small">Every tuning in the book with its fretboard, scales, computed chord voicings, a capo, playback and a progression tool. This concept follows the drafting-sheet language of Bearplus' Heron AI site.</p></div>
+        <div class="act tick"><a class="cell-cta" href="#t/open-g">Start with Open G</a></div>
       </div>
-      </div>
-      <div class="cat-grid" style="margin-top:var(--s6)">${cats}</div>
-      <div class="card">
+      <div class="cat-grid">${cats}</div>
+      <div class="card reveal">
         <h2>What you get for each tuning</h2>
         <div class="two-col">
           <div><p><b>Tuning strip.</b> Every string with its sounding pitch, MIDI number, how many half steps to retune from standard, and which fret matches the next string, exactly as the book lays it out.</p>
@@ -221,6 +221,30 @@
           <p><b>Sethares' commentary.</b> His notes on the feel, history and quirks of each tuning, with the songs that made it famous.</p></div>
         </div>
       </div>`;
+    const hero = $('#homeHero'), art = $('#heroArt'), annot = $('#heroAnnot'), tip = $('#cursorTip');
+    const showAnnot = (b) => {
+      annot.innerHTML = `<b>${esc(b.dataset.title)}</b>${esc(b.dataset.tip)}`;
+      const left = parseFloat(b.style.left), top = parseFloat(b.style.top);
+      annot.style.left = (left > 60 ? 'auto' : `calc(${left}% + 16px)`); annot.style.right = (left > 60 ? `calc(${100 - left}% + 16px)` : 'auto');
+      annot.style.top = `calc(${top}% - 12px)`;
+      annot.classList.add('show');
+    };
+    art.querySelectorAll('.hotspot').forEach((b) => {
+      b.addEventListener('mouseenter', () => showAnnot(b));
+      b.addEventListener('focus', () => showAnnot(b));
+      b.addEventListener('mouseleave', () => annot.classList.remove('show'));
+      b.addEventListener('blur', () => annot.classList.remove('show'));
+      b.addEventListener('click', () => { Audio.strum(byId('open-g').midi, 0.05); });
+    });
+    hero.addEventListener('mousemove', (e) => {
+      const r = hero.getBoundingClientRect();
+      const x = Math.round(e.clientX - r.left), y = Math.round(e.clientY - r.top);
+      tip.querySelector('.xy').textContent = `X:${String(x).padStart(4, '0')} Y:${String(y).padStart(4, '0')}`;
+      tip.querySelector('.hint').textContent = e.target.closest('.hotspot') ? 'Click to hear Open G' : 'Hover a marker';
+      tip.style.left = (x + 18) + 'px'; tip.style.top = (y + 18) + 'px';
+      tip.classList.add('show');
+    });
+    hero.addEventListener('mouseleave', () => tip.classList.remove('show'));
   }
 
   function renderTuning() {
@@ -270,29 +294,35 @@
     const pos = order.indexOf(t);
     const prev = pos > 0 ? order[pos - 1] : null, next = pos >= 0 && pos < order.length - 1 ? order[pos + 1] : null;
     el.innerHTML = h`
-      <div class="pad">
-      <div class="tune-head">
+      <div class="toolbar">
+        <div><span class="lbl">Root</span><select id="scaleRoot" aria-label="Scale root">${scaleRoots}</select></div>
+        <div><span class="lbl">Scale</span><select id="scaleType" aria-label="Scale type">${scaleTypes}</select></div>
+        <div><button class="btn sm ghost" id="scaleClear">${state.scaleType === 'none' ? 'Show scale' : 'Notes only'}</button></div>
+        <div><span class="lbl">Capo</span><select id="capo" aria-label="Capo fret">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<option value="${n}" ${n === capo ? 'selected' : ''}>${n === 0 ? 'none' : 'fret ' + n}</option>`).join('')}</select></div>
+        <div class="spacer"><span class="readout" id="fbCoord">[hover a note]</span></div>
+        <div><button class="btn gold arrow" id="strumBtn">Hear the open strings</button><button class="btn" id="arpBtn">Arpeggio</button></div>
+      </div>
+      <section class="sheet-hero fb-hero">
+        <span class="cross tl"></span><span class="cross tr"></span><span class="cross bl"></span><span class="cross br"></span><span class="ruler-v l"></span><span class="ruler-v r"></span>
+        <div class="fretboard-wrap" id="fretboardWrap"></div>
+        <div class="legend"><span><i class="root"></i>root</span><span><i class="tone"></i>scale tone</span><span>String 1 on top, as in the book. Click any note to hear it.</span></div>
+      </section>
+      <div class="headline-block">
         <div>
           <div class="eyebrow"><b>${esc(isCustom ? 'Custom tuning' : catName(t.category))}</b>${pos >= 0 ? `<span>[${String(pos).padStart(2, '0')}/${String(order.length - 1).padStart(2, '0')}]</span>` : ''}${pdfPage ? `<span>page ${t.page} of the guide</span>` : ''}<span>${esc(notesOf(actual))}</span></div>
-          <h1 class="page-title">${esc(isCustom ? notesOf(actual) : t.name)}</h1>
-          <p class="lede">${isCustom ? 'A tuning you typed in. Everything below is computed from its notes.' : `${open ? `The open strings sound ${article(open.name)} ${esc(open.name)} chord${capo ? ' with the capo at fret ' + capo : ''}.` : 'The open strings do not form a single named chord.'} ${t.songs && t.songs.length ? 'Heard in ' + esc(t.songs[0]) + '.' : ''}`}</p>
+          <h1 class="page-title" style="margin-top:14px">${esc(isCustom ? notesOf(actual) : t.name)}</h1>
         </div>
-        <div class="row">
-          ${pos >= 0 ? `<div class="pager">${prev ? `<a class="btn ghost sm" href="#t/${prev.id}" title="${esc(prev.name)}">← ${esc(prev.name)}</a>` : ''}${next ? `<a class="btn ghost sm" href="#t/${next.id}" title="${esc(next.name)}">${esc(next.name)} →</a>` : ''}</div>` : ''}
-          <label class="field">Capo<select id="capo" aria-label="Capo fret">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<option value="${n}" ${n === capo ? 'selected' : ''}>${n === 0 ? 'none' : 'fret ' + n}</option>`).join('')}</select></label>
-          <button class="btn gold" id="strumBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>
-            Hear the open strings</button>
-          <button class="btn ghost" id="arpBtn">Arpeggio</button>
-        </div>
+        <div class="desc"><p class="lede">${isCustom ? 'A tuning you typed in. Everything below is computed from its notes.' : `${open ? `The open strings sound ${article(open.name)} ${esc(open.name)} chord${capo ? ' with the capo at fret ' + capo : ''}.` : 'The open strings do not form a single named chord.'} ${t.songs && t.songs.length ? 'Heard in ' + esc(t.songs[0]) + '.' : ''}`}</p></div>
+        <div class="act">${pos >= 0 ? `<div class="pager" style="display:grid;gap:8px">${prev ? `<a class="btn ghost" href="#t/${prev.id}">← ${esc(prev.name)}</a>` : ''}${next ? `<a class="btn arrow" href="#t/${next.id}">${esc(next.name)}</a>` : ''}</div>` : `<a class="cell-cta" href="#find">Back to the identifier</a>`}</div>
       </div>
+      <div class="pad">
       <div class="strings" id="strings">${stringCells}</div>
       <div class="fret-row" aria-label="Fret to match the next string">${fretCells}</div>
       <p class="small muted" style="margin-top:6px">Tune the lowest string first. Then press the shown fret on each string to sound the open note of the next string up.${capo ? ` With the capo at fret ${capo}, every shape below is drawn relative to the capo and every chord is named at sounding pitch: the same fingers, ${capo} half step${capo === 1 ? '' : 's'} higher.` : ''}</p>
       <div class="facts">${facts}</div>
       </div>
 
-      ${isCustom ? '' : h`<div class="section card">
+      ${isCustom ? '' : h`<div class="section card reveal">
         <h2>About the ${esc(t.name)} tuning</h2>
         <div class="commentary">${t.text.split(/(?<=\.)\s+(?=[A-Z"'(])/).reduce((acc, s, i) => { const k = Math.floor(i / 3); (acc[k] = acc[k] || []).push(s); return acc; }, []).map((p) => `<p>${esc(p.join(' '))}</p>`).join('')}</div>
         ${t.songs ? `<ul class="songs" aria-label="Songs in this tuning">${t.songs.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
@@ -300,27 +330,13 @@
         <p class="cite" style="margin:var(--s3) 0 0">Bill Sethares, Alternate Tuning Guide${pdfPage ? `, <a href="${PDF}#page=${pdfPage}" target="_blank" rel="noopener">page ${t.page}</a>` : ''}. The book's chord chart for this tuning is on the following page.</p>
       </div>`}
 
-      <div class="section card">
+      <div class="section card reveal">
         <h2>${isCustom ? 'Closest tunings in the guide' : 'Related tunings'}</h2>
         <p class="small muted">Same notes transposed, or one string away. Chord forms from a related chart carry over with the named adjustment.</p>
         <div class="related">${relatedHTML}</div>
       </div>
 
-      <div class="section card">
-        <div class="sheet-head">
-          <h2>Fretboard and scales</h2>
-          <span class="coord-read" id="fbCoord">[hover a note]</span>
-          <div class="controls">
-            <label class="field">Root<select id="scaleRoot">${scaleRoots}</select></label>
-            <label class="field">Scale<select id="scaleType">${scaleTypes}</select></label>
-            <button class="btn ghost sm" id="scaleClear">${state.scaleType === 'none' ? 'Show scale' : 'Notes only'}</button>
-          </div>
-        </div>
-        <div class="fretboard-wrap" id="fretboardWrap"></div>
-        <div class="legend" style="margin-top:var(--s2)"><span><i class="root"></i>root</span><span><i class="tone"></i>scale tone</span><span>String 1 on top, as in the book. Click any note to hear it.</span></div>
-      </div>
-
-      <div class="section card">
+      <div class="section card reveal">
         <div class="sheet-head">
           <h2>Chords</h2>
           <div class="controls">
@@ -512,10 +528,10 @@
   function renderFind(prefill) {
     const el = $('#view-find');
     el.innerHTML = h`
-      <div class="pad">
-      <div class="eyebrow"><b>What about other tunings?</b><span>cross index, computed</span></div>
-      <h1 class="page-title">Identify a tuning</h1>
-      <p class="lede">Type six notes, low string to high. If the tuning is a transposition or a one-string variant of a tuning in the guide, you can use that chart with the adjustment shown. This is the book's cross index, computed for any tuning.</p>
+      <div class="headline-block">
+        <div><div class="eyebrow"><b>What about other tunings?</b><span>cross index, computed</span></div><h1 class="page-title" style="margin-top:14px">Identify a tuning</h1></div>
+        <div class="desc"><p class="lede">Type six notes, low string to high. If the tuning is a transposition or a one-string variant of a tuning in the guide, you can use that chart with the adjustment shown. This is the book's cross index, computed for any tuning.</p></div>
+        <div class="act tick"><a class="cell-cta" href="#guide">The book's own cross index</a></div>
       </div>
       <div class="card">
         <form class="find-form" id="findForm">
@@ -562,34 +578,29 @@
     const crossRows = D.CROSS_INDEX.map((r) => `<tr><td>${esc(r.name)}</td><td class="mono"><a href="#c/${r.notes.split(' ').map((n) => n.replace('#', 's')).join('-')}">${esc(r.notes)}</a></td><td>${esc(r.relation)}</td></tr>`).join('');
     const instRows = D.OTHER_INSTRUMENTS.map((r) => `<tr><td>${esc(r.instrument)}</td><td class="mono">${esc(r.notes)}</td><td>${esc(r.relation)}</td></tr>`).join('');
     el.innerHTML = h`
-      <div class="pad">
-      <div class="hero">
-        <div>
-          <div class="eyebrow"><b>How the book works</b><span>method, not charts</span></div>
-          <h1 class="page-title">Four tricks and a circle</h1>
-          <p class="lede">The Alternate Tuning Guide gives each tuning two pages: a tuning page with retuning steps, scales and the fretboard, and a chord page with about thirty chords. The rest of the book is a method for turning those seeds into every chord you need. Here is that method.</p>
-        </div>
-        <div class="hero-art" aria-hidden="true" style="max-width:360px;justify-self:end"><svg viewBox="0 0 220 120"><use href="#art-book"/></svg></div>
+      <div class="headline-block">
+        <div><div class="eyebrow"><b>How the book works</b><span>method, not charts</span></div><h1 class="page-title" style="margin-top:14px">Four tricks and a circle</h1></div>
+        <div class="desc"><p class="lede">The Alternate Tuning Guide gives each tuning two pages: a tuning page with retuning steps, scales and the fretboard, and a chord page with about thirty chords. The rest of the book is a method for turning those seeds into every chord you need. Here is that method.</p></div>
+        <div class="act tick"><a class="cell-cta" href="${PDF}" target="_blank" rel="noopener">Read the original PDF</a></div>
       </div>
-      </div>
-      <div class="card">
+      <div class="card reveal">
         <h2>Reading a tuning</h2>
         <p>${esc(G.retuning)}</p>
         <p class="small muted" style="margin:0">Sethares lists MIDI numbers an octave above sounding pitch, the written-guitar convention. This app uses sounding pitch (standard low E is 40). Subtract 12 from the app's numbers to match the book, or add 12 to the book's numbers to drive a synth at the right octave.</p>
       </div>
-      <div class="card">
+      <div class="card reveal">
         <h2>The circle of notes</h2>
         <div class="two-col" style="align-items:center">
           <p>${esc(G.circleOfNotes)}</p>
           <div class="circle-wrap">${circleSVG()}</div>
         </div>
       </div>
-      <div class="card">
+      <div class="card reveal">
         <h2>The four tricks</h2>
         <p class="muted">These techniques, applied judiciously, allow you to play almost any chord in almost any tuning given a few seed chords to start with.</p>
         <div class="tricks">${G.fourTricks.map((t) => `<div class="trick"><h4>${esc(t.title)}</h4><p>${esc(t.body)}</p></div>`).join('')}</div>
       </div>
-      <div class="card">
+      <div class="card reveal">
         <h2>The stuff chords are made of</h2>
         <p>${esc(G.buildChords)}</p>
         <div class="two-col">
@@ -599,17 +610,17 @@
             <p class="small muted">The progression tool also understands a few types beyond the book's table: ${esc(D.CHORD_TYPES.filter((c) => c.extra).map((c) => c.name + ' (' + c.abbr + ')').join(', '))}.</p></div>
         </div>
       </div>
-      <div class="card">
+      <div class="card reveal">
         <h2>Cross index of tunings</h2>
         <p class="muted">Named tunings from records and songbooks, and how each relates to a tuning in the guide. Click the notes to explore any of them. The <a href="#find">identifier</a> does this for tunings not listed here.</p>
         <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Notes</th><th>Relation</th></tr></thead><tbody>${crossRows}</tbody></table></div>
       </div>
-      <div class="card">
+      <div class="card reveal">
         <h2>Banjo, cittern, oud and friends</h2>
         <p class="muted">Players of other stringed instruments can use the charts by ignoring the extra strings.</p>
         <div class="tbl-wrap"><table><thead><tr><th>Instrument</th><th>Notes</th><th>Chart to use</th></tr></thead><tbody>${instRows}</tbody></table></div>
       </div>
-      <div class="card">
+      <div class="card reveal">
         <h2>About this app</h2>
         <p>Bill Sethares wrote the Alternate Tuning Guide and gives it away as a <a href="${PDF}" target="_blank" rel="noopener">free PDF</a>. He is a professor of electrical engineering at the University of Wisconsin and the author of Tuning, Timbre, Spectrum, Scale. This app carries his tuning data and commentary; the fretboards, scale maps and chord fingerings are computed from the interval tables rather than copied from the book, so the chord pages here and in the book will differ and complement each other.</p>
         <p style="margin:0">Pitches shown are sounding pitch. The octaves for the Overtone and Pentatonic tunings are not fixed by the book and were chosen to keep retuning small.</p>
@@ -656,18 +667,18 @@
     $('#side').classList.remove('open');
     $('#menuBtn').setAttribute('aria-expanded', 'false');
     window.scrollTo({ top: 0, behavior: 'auto' });
-    requestAnimationFrame(() => { const f = $('#frame'); if (f) { const r = f.getBoundingClientRect(); const x0 = Math.round(r.left + window.scrollX), x1 = Math.round(r.right + window.scrollX), hh = Math.round(f.offsetHeight); $('#coordTL').textContent = `[${x0},0]`; $('#coordTR').textContent = `[${x1},0]`; $('#coordBL').textContent = `[${x0},${hh}]`; $('#coordBR').textContent = `[${x1},${hh}]`; } });
+    requestAnimationFrame(watchReveals);
   }
 
   // ---------- boot ----------
   $('#search').addEventListener('input', (e) => { state.filter = e.target.value; renderNav(); openPanel(true); });
   function openPanel(open) { $('#side').classList.toggle('open', open); $('#menuBtn').setAttribute('aria-expanded', String(open)); }
-  function updateCoords() {
-    const f = $('#frame'); if (!f) return;
-    const r = f.getBoundingClientRect(); const x0 = Math.round(r.left + window.scrollX), x1 = Math.round(r.right + window.scrollX), h = Math.round(f.offsetHeight);
-    $('#coordTL').textContent = `[${x0},0]`; $('#coordTR').textContent = `[${x1},0]`; $('#coordBL').textContent = `[${x0},${h}]`; $('#coordBR').textContent = `[${x1},${h}]`;
+  const revealer = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add('in'); revealer.unobserve(en.target); } });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 }) : null;
+  function watchReveals() {
+    document.querySelectorAll('.view.active .reveal:not(.in)').forEach((el) => { if (revealer) revealer.observe(el); else el.classList.add('in'); });
   }
-  window.addEventListener('resize', updateCoords);
   $('#search').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const first = $('#sideNav .nav-link');
@@ -679,5 +690,4 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') openPanel(false); });
   window.addEventListener('hashchange', render);
   render();
-  updateCoords();
 })();

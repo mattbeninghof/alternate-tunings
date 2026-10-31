@@ -4,8 +4,8 @@
   "description": "38 guitar tunings with interactive fretboards, scales, chord voicings and a tuning identifier, after Bill Sethares.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#F2EEE4",
-  "theme_color": "#F04E23",
+  "background_color": "#F2F2F1",
+  "theme_color": "#FA3600",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }

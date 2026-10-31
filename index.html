@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alternate Tuning Guide</title>
+<meta name="description" content="An interactive companion to Bill Sethares' Alternate Tuning Guide: 38 guitar tunings with fretboards, scales, chord voicings, retuning steps, and a tuning identifier.">
+<meta property="og:title" content="Alternate Tuning Guide">
+<meta property="og:description" content="38 guitar tunings with interactive fretboards, scale maps, chord voicings and a tuning identifier, built from Bill Sethares' guide.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#1F4D3A">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pine: #1F4D3A;
+  --pine-deep: #163A2C;
+  --pine-soft: #2E6A50;
+  --pine-tint: #DCE8DF;
+  --marigold: #E8A33D;
+  --marigold-deep: #C9862A;
+  --marigold-tint: #FBEBCF;
+  --paper: #F6F1E7;
+  --paper-deep: #EDE5D6;
+  --card: #FFFDF8;
+  --ink: #2A2622;
+  --ink-soft: #5E5750;
+  --ink-faint: #9A918A;
+  --rule: #E0D7C7;
+  --focus: #E8A33D;
+  --radius: 18px;
+  --radius-sm: 10px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+  --display: 'Young Serif', Georgia, 'Times New Roman', serif;
+  --body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --shadow: 0 10px 30px rgba(31, 77, 58, 0.14), 0 1px 2px rgba(31,77,58,.12);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--body);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+a { color: var(--pine); }
+button { font: inherit; color: inherit; }
+h1, h2, h3, h4 { font-family: var(--display); font-weight: 400; line-height: 1.15; margin: 0; letter-spacing: -0.005em; }
+p { margin: 0 0 var(--s4); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+
+.app { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 272px minmax(0, 1fr); gap: var(--s5); padding: var(--s5); min-height: 100vh; }
+
+/* Sidebar */
+.side { position: sticky; top: var(--s5); align-self: start; max-height: calc(100vh - 2 * var(--s5)); display: flex; flex-direction: column; background: var(--pine); color: #F3EFE4; border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; }
+.side-head { padding: var(--s5) var(--s5) var(--s4); }
+.brand { display: flex; align-items: center; gap: var(--s3); text-decoration: none; color: inherit; }
+.brand svg { flex: none; }
+.brand-title { font-family: var(--display); font-size: 1.25rem; line-height: 1.1; }
+.brand-sub { display: block; font-size: .75rem; opacity: .75; margin-top: 4px; }
+.side-search { margin-top: var(--s4); position: relative; }
+.side-search input { width: 100%; padding: 10px 12px 10px 36px; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08); color: #fff; font-size: .9rem; }
+.side-search input::placeholder { color: rgba(255,255,255,.55); }
+.side-search input:focus-visible { outline-color: var(--marigold); }
+.side-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .7; }
+.side-nav { padding: 0 var(--s3) var(--s3); overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.3) transparent; }
+.nav-link { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 12px; border: 0; background: transparent; border-radius: 12px; cursor: pointer; color: inherit; font-size: .92rem; text-decoration: none; }
+.nav-link:hover { background: rgba(255,255,255,.1); }
+.nav-link.active { background: var(--marigold); color: var(--ink); font-weight: 600; }
+.nav-link:active { transform: translateY(1px); }
+.nav-link .notes { margin-left: auto; font-size: .7rem; letter-spacing: .04em; opacity: .7; font-variant-numeric: tabular-nums; }
+.nav-link.active .notes { opacity: .85; }
+.nav-group { margin-top: var(--s4); }
+.nav-group-title { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; opacity: .65; padding: 0 12px 6px; }
+.nav-tools { border-top: 1px solid rgba(255,255,255,.14); padding: var(--s3); display: grid; gap: 2px; }
+.nav-empty { padding: var(--s4) var(--s3); font-size: .85rem; opacity: .75; }
+.side-art { padding: 0 var(--s4) var(--s3); opacity: .9; }
+
+/* Main */
+.main { min-width: 0; }
+.view { display: none; }
+.view.active { display: block; animation: rise .28s ease-out; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .view.active { animation: none; } * { transition: none !important; } }
+
+.eyebrow { font-size: .75rem; text-transform: uppercase; letter-spacing: .14em; color: var(--pine-soft); font-weight: 600; }
+.page-title { font-size: clamp(2rem, 4vw, 3rem); margin: var(--s1) 0 var(--s2); }
+.lede { font-size: 1.05rem; color: var(--ink-soft); max-width: 62ch; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: var(--s5); }
+.card + .card, .section + .section { margin-top: var(--s5); }
+.card h2, .card h3 { margin-bottom: var(--s3); }
+.card h2 { font-size: 1.35rem; }
+.card h3 { font-size: 1.1rem; }
+.muted { color: var(--ink-soft); }
+.small { font-size: .85rem; }
+.row { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; }
+.grow { flex: 1; }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: var(--s5) 0; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--pine); background: var(--pine); color: #fff; cursor: pointer; font-weight: 600; font-size: .9rem; transition: background .15s, transform .05s; text-decoration: none; }
+.btn:hover { background: var(--pine-soft); }
+.btn:active { transform: translateY(1px); }
+.btn.ghost { background: transparent; color: var(--pine); }
+.btn.ghost:hover { background: var(--pine-tint); }
+.btn.gold { background: var(--marigold); border-color: var(--marigold); color: var(--ink); }
+.btn.gold:hover { background: var(--marigold-deep); }
+.btn.sm { padding: 6px 12px; font-size: .8rem; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+select, input[type=text] { font: inherit; padding: 9px 12px; border-radius: var(--radius-sm); border: 1px solid var(--rule); background: #fff; color: var(--ink); }
+select:hover, input[type=text]:hover { border-color: var(--ink-faint); }
+label.field { display: grid; gap: 4px; font-size: .78rem; color: var(--ink-soft); font-weight: 500; }
+
+/* Tuning header */
+.tune-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s5); align-items: start; }
+.strings { display: grid; grid-template-columns: repeat(6, minmax(52px, 1fr)); gap: var(--s2); margin-top: var(--s4); }
+.string { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 10px 6px 8px; text-align: center; position: relative; transition: transform .15s, box-shadow .15s; cursor: pointer; }
+.string:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.string.pluck { animation: pluck .35s ease-out; }
+@keyframes pluck { 0% { background: var(--marigold-tint); } 100% { background: var(--card); } }
+.string .num { font-size: .65rem; color: var(--ink-faint); letter-spacing: .08em; }
+.string .note { font-family: var(--display); font-size: 1.6rem; line-height: 1; margin: 2px 0; }
+.string .note sub { font-size: .55em; color: var(--ink-soft); }
+.string .delta { font-size: .78rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.delta.up { color: var(--marigold-deep); }
+.delta.down { color: var(--pine-soft); }
+.delta.same { color: var(--ink-faint); }
+.string .midi { font-size: .68rem; color: var(--ink-faint); margin-top: 2px; }
+.string.muted-string { opacity: .55; border-style: dashed; }
+.fret-row { display: grid; grid-template-columns: repeat(6, minmax(52px, 1fr)); gap: var(--s2); margin-top: var(--s2); font-size: .72rem; color: var(--ink-soft); }
+.fret-row span { text-align: center; position: relative; }
+.fret-row .f { display: inline-block; transform: translateX(50%); background: var(--pine-tint); color: var(--pine); border-radius: 999px; padding: 1px 8px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s3); margin-top: var(--s4); }
+.fact { background: var(--paper-deep); border-radius: 12px; padding: 10px 12px; }
+.fact .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); }
+.fact .v { font-weight: 600; margin-top: 2px; }
+.commentary { font-size: 1.02rem; max-width: 70ch; }
+.commentary p { text-indent: 0; }
+.cite { font-size: .8rem; color: var(--ink-soft); }
+.songs { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.songs li { background: var(--marigold-tint); border-radius: 999px; padding: 4px 10px; font-size: .8rem; }
+.related { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--rule); background: var(--card); color: var(--ink); text-decoration: none; font-size: .85rem; cursor: pointer; }
+.chip:hover { border-color: var(--pine); background: var(--pine-tint); }
+.chip b { font-weight: 600; color: var(--pine); }
+
+/* Fretboard */
+.fretboard-wrap { overflow-x: auto; padding-bottom: 4px; }
+.fretboard { min-width: 620px; width: 100%; display: block; }
+.fretboard text { font-family: var(--body); }
+.fretboard .wire { stroke: #B9AE98; }
+.fretboard .nut { stroke: var(--ink); stroke-width: 5; }
+.fretboard .str { stroke: #7A7064; }
+.fretboard .marker { fill: var(--paper-deep); }
+.fretboard .label { fill: var(--ink-faint); font-size: 10px; }
+.fretboard .dot { fill: var(--marigold); stroke: var(--card); stroke-width: 1.5; }
+.fretboard .dot.root { fill: var(--pine); }
+.fretboard .dot-text { fill: var(--ink); font-size: 9.5px; font-weight: 600; pointer-events: none; }
+.fretboard .dot.root + .dot-text { fill: #fff; }
+.fretboard .name { fill: var(--ink-faint); font-size: 9px; }
+.fretboard .hit { fill: transparent; cursor: pointer; }
+.legend { display: flex; gap: var(--s4); font-size: .8rem; color: var(--ink-soft); align-items: center; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: -1px; margin-right: 5px; }
+.legend i.root { background: var(--pine); } .legend i.tone { background: var(--marigold); }
+
+/* Chord diagrams */
+.voicings { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: var(--s3); }
+.voicing { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 10px 8px 6px; text-align: center; cursor: pointer; transition: transform .15s, box-shadow .15s, border-color .15s; }
+.voicing:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--pine-tint); }
+.voicing:active { transform: translateY(0); }
+.voicing.playing { border-color: var(--marigold); }
+.voicing .vname { font-family: var(--display); font-size: .95rem; margin-bottom: 4px; }
+.voicing svg { width: 100%; height: auto; display: block; }
+.voicing .vmeta { font-size: .68rem; color: var(--ink-faint); margin-top: 4px; }
+.diagram .d-wire { stroke: #B9AE98; stroke-width: 1; }
+.diagram .d-nut { stroke: var(--ink); stroke-width: 3; }
+.diagram .d-str { stroke: #7A7064; stroke-width: 1; }
+.diagram .d-dot { fill: var(--pine); }
+.diagram .d-dot.root { fill: var(--marigold-deep); }
+.diagram .d-finger { fill: #fff; font-size: 7.5px; font-weight: 700; font-family: var(--body); }
+.diagram .d-open { fill: none; stroke: var(--pine); stroke-width: 1.2; }
+.diagram .d-mute { stroke: var(--ink-faint); stroke-width: 1.2; }
+.diagram .d-pos { fill: var(--ink-soft); font-size: 8px; font-family: var(--body); }
+.diagram .d-barre { stroke: var(--pine); stroke-width: 7; stroke-linecap: round; opacity: .95; }
+
+.empty { text-align: center; padding: var(--s6) var(--s4); color: var(--ink-soft); }
+.empty svg { display: block; margin: 0 auto var(--s3); }
+.empty h3 { margin-bottom: var(--s2); }
+
+/* Home */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: var(--s5); align-items: center; }
+.hero-art { justify-self: end; }
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s4); }
+.cat { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: var(--s4) var(--s5); }
+.cat h3 { font-size: 1.15rem; display: flex; align-items: center; gap: 10px; }
+.cat p { font-size: .88rem; color: var(--ink-soft); margin: var(--s2) 0 var(--s3); }
+.cat ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.cat li a { display: flex; justify-content: space-between; gap: 8px; padding: 5px 8px; margin: 0 -8px; border-radius: 8px; text-decoration: none; color: var(--ink); font-size: .9rem; }
+.cat li a:hover { background: var(--pine-tint); }
+.cat li a span { color: var(--ink-faint); font-size: .75rem; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); font-weight: 600; }
+td.mono, .mono { font-variant-numeric: tabular-nums; letter-spacing: .03em; }
+.tbl-wrap { overflow-x: auto; }
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--s5); }
+.tricks { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s4); counter-reset: trick; }
+.trick { background: var(--paper-deep); border-radius: 14px; padding: var(--s4); }
+.trick h4 { font-size: 1rem; margin-bottom: 6px; display: flex; gap: 10px; align-items: baseline; }
+.trick h4::before { counter-increment: trick; content: counter(trick); font-family: var(--display); color: var(--marigold-deep); font-size: 1.3rem; }
+.trick p { font-size: .88rem; color: var(--ink-soft); margin: 0; }
+.circle-wrap { display: flex; justify-content: center; }
+
+/* Find */
+.find-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s3); align-items: end; }
+.find-form input { font-size: 1.1rem; font-family: var(--display); letter-spacing: .06em; padding: 12px 14px; }
+.matches { display: grid; gap: var(--s3); margin-top: var(--s5); }
+.match { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s3); align-items: center; background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 12px 16px; }
+.match .mname { font-family: var(--display); font-size: 1.1rem; }
+.match .mdesc { font-size: .85rem; color: var(--ink-soft); }
+.match.exact { border-color: var(--marigold); background: var(--marigold-tint); }
+.err { color: #9A3B1E; font-size: .88rem; }
+
+footer.foot { margin-top: var(--s7); padding: var(--s5) 0; font-size: .8rem; color: var(--ink-soft); border-top: 1px solid var(--rule); }
+footer.foot a { color: var(--pine); }
+
+.topbar { display: none; }
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; padding: var(--s4); gap: var(--s4); }
+  .side { position: static; max-height: none; border-radius: 20px; }
+  .side-nav { max-height: 0; overflow: hidden; padding: 0 var(--s3); transition: max-height .25s ease; }
+  .side.open .side-nav { max-height: 70vh; overflow-y: auto; padding-bottom: var(--s3); }
+  .side-art { display: none; }
+  .side-brand { display: none; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding: var(--s4) var(--s4) var(--s3); }
+  .side-head { padding: 0 var(--s4) var(--s3); }
+  .tune-head { grid-template-columns: 1fr; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-art { justify-self: center; }
+  .strings, .fret-row { grid-template-columns: repeat(6, minmax(44px, 1fr)); gap: 4px; }
+  .string .note { font-size: 1.3rem; }
+  .string .num { font-size: .55rem; letter-spacing: .04em; white-space: nowrap; }
+  .string .delta { font-size: .7rem; white-space: nowrap; }
+  .string .midi { font-size: .6rem; }
+  .find-form { grid-template-columns: 1fr; }
+  .card { padding: var(--s4); }
+}
+@media (min-width: 901px) { .side-head .brand { pointer-events: auto; } .menu-btn { display: none; } }
+.menu-btn { background: rgba(255,255,255,.12); border: 0; color: #fff; border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="topbar">
+      <a class="brand" href="#home" aria-label="Alternate Tuning Guide home">
+        <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><use href="#mark"/></svg>
+        <span><span class="brand-title">Alternate Tuning Guide</span></span>
+      </a>
+      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="sideNav">Tunings</button>
+    </div>
+    <div class="side-head">
+      <a class="brand side-brand" href="#home" aria-label="Alternate Tuning Guide home">
+        <svg width="40" height="40" viewBox="0 0 64 64" aria-hidden="true"><use href="#mark"/></svg>
+        <span><span class="brand-title">Alternate<br>Tuning Guide</span><span class="brand-sub">after Bill Sethares</span></span>
+      </a>
+      <div class="side-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="search" placeholder="Search tunings or notes" aria-label="Search tunings by name or open notes" autocomplete="off">
+      </div>
+    </div>
+    <nav class="side-nav" id="sideNav" aria-label="Tunings"></nav>
+    <div class="nav-tools">
+      <a class="nav-link" href="#find" data-route="find">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 8h4M15 8h4M5 16h4M15 16h4"/></svg>
+        Identify a tuning</a>
+      <a class="nav-link" href="#guide" data-route="guide">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 7h6"/></svg>
+        How the book works</a>
+    </div>
+    <div class="side-art" aria-hidden="true">
+      <svg viewBox="0 0 240 120" width="100%" height="auto"><use href="#art-guitar"/></svg>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <section class="view" id="view-home"></section>
+    <section class="view" id="view-tuning"></section>
+    <section class="view" id="view-find"></section>
+    <section class="view" id="view-guide"></section>
+    <footer class="foot">
+      Built from Bill Sethares' <a href="https://sethares.engr.wisc.edu/alternatetunings/alltunings.pdf" target="_blank" rel="noopener">Alternate Tuning Guide</a> (text and tuning data used with gratitude; chord fingerings are computed, not copied). Pitches are sounding pitch, low E on a standard guitar = E2 = MIDI 40. Sound is a plucked-string synthesis, so use it to hear the shape of a tuning, not to tune by ear.
+    </footer>
+  </main>
+</div>
+
+<!-- Inline SVG library: mark and hand-drawn spot illustrations -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Brand mark: a tuning peg seen from the headstock -->
+    <symbol id="mark" viewBox="0 0 64 64">
+      <rect x="4" y="4" width="56" height="56" rx="14" fill="#E8A33D"/>
+      <path d="M20 44c0-9 5-14 12-14s12 5 12 14" fill="none" stroke="#1F4D3A" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="32" cy="30" r="6" fill="#1F4D3A"/>
+      <path d="M32 24V13" stroke="#1F4D3A" stroke-width="4" stroke-linecap="round"/>
+      <path d="M24 13h16" stroke="#1F4D3A" stroke-width="4" stroke-linecap="round"/>
+      <path d="M12 50h40" stroke="#1F4D3A" stroke-width="3" stroke-linecap="round" opacity=".55"/>
+    </symbol>
+    <!-- Parlor guitar, hand-drawn line art -->
+    <symbol id="art-guitar" viewBox="0 0 240 120">
+      <g fill="none" stroke="#F3EFE4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 64c0-14 12-24 28-24 10 0 16 5 22 5 7 0 12-6 24-6 20 0 34 14 34 30s-14 30-34 30c-12 0-17-6-24-6-6 0-12 5-22 5-16 0-28-10-28-24z"/>
+        <circle cx="86" cy="62" r="9"/>
+        <path d="M86 42v-4M110 60h18"/>
+        <path d="M128 56h78l8 4-8 4h-78z"/>
+        <path d="M206 58l12-9M212 59l12-7M206 62l12 9M212 61l12 7"/>
+        <path d="M60 58h20M60 66h20"/>
+        <path d="M44 50v24" stroke="#E8A33D"/>
+        <path d="M30 62h20" stroke="#E8A33D"/>
+        <path d="M134 60h70" stroke-dasharray="0 6" stroke-width="2.4"/>
+      </g>
+    </symbol>
+    <!-- Tuning peg and headstock, for the identify page -->
+    <symbol id="art-peg" viewBox="0 0 200 160">
+      <g fill="none" stroke="#1F4D3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M60 150V46c0-10 8-18 18-18h44c10 0 18 8 18 18v104"/>
+        <path d="M60 46l-26 6M60 72l-26 6M60 98l-26 6M140 46l26 6M140 72l26 6M140 98l26 6"/>
+        <circle cx="30" cy="54" r="6" fill="#E8A33D" stroke="#1F4D3A"/><circle cx="30" cy="80" r="6" fill="#E8A33D"/><circle cx="30" cy="106" r="6" fill="#E8A33D"/>
+        <circle cx="170" cy="54" r="6" fill="#E8A33D"/><circle cx="170" cy="80" r="6" fill="#E8A33D"/><circle cx="170" cy="106" r="6" fill="#E8A33D"/>
+        <path d="M78 150V60M86 150V86M94 150V112M106 150V112M114 150V86M122 150V60"/>
+        <path d="M78 60l-14-6M86 86l-22-6M94 112l-30-6M122 60l14-6M114 86l22-6M106 112l30-6"/>
+        <path d="M90 36c4-6 16-6 20 0" stroke="#E8A33D"/>
+      </g>
+    </symbol>
+    <!-- Bottleneck slide over strings, for empty voicings -->
+    <symbol id="art-slide" viewBox="0 0 200 120">
+      <g fill="none" stroke="#1F4D3A" stroke-width="2.2" stroke-linecap="round">
+        <path d="M10 30h180M10 46h180M10 62h180M10 78h180M10 94h180" stroke="#9A918A"/>
+        <path d="M70 18h24l6 12v62l-6 12H70l-6-12V30z" fill="#F6F1E7"/>
+        <path d="M78 28v64" stroke="#E8A33D"/>
+        <path d="M140 20c6 8 6 16 0 24M152 14c10 12 10 24 0 36" stroke="#E8A33D"/>
+      </g>
+    </symbol>
+    <!-- Capo and songbook, for the guide header -->
+    <symbol id="art-book" viewBox="0 0 220 120">
+      <g fill="none" stroke="#1F4D3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M30 100V26c0-4 3-7 7-7h60c6 0 10 4 13 8 3-4 7-8 13-8h60c4 0 7 3 7 7v74"/>
+        <path d="M30 100c20-6 50-6 80 2 30-8 60-8 80-2"/>
+        <path d="M110 27v75"/>
+        <path d="M44 40h50M44 52h50M44 64h40M126 40h50M126 52h36" stroke="#9A918A"/>
+        <path d="M140 66h30M140 76h30M140 86h30" stroke="#9A918A"/>
+        <path d="M44 78c6-10 12-10 18 0s12 10 18 0" stroke="#E8A33D"/>
+        <circle cx="156" cy="66" r="2.5" fill="#E8A33D" stroke="none"/><circle cx="146" cy="76" r="2.5" fill="#E8A33D" stroke="none"/><circle cx="166" cy="86" r="2.5" fill="#E8A33D" stroke="none"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

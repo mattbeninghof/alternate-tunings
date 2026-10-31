@@ -65,7 +65,7 @@ p { margin: 0 0 var(--s4); }
 .brand { display: flex; align-items: center; gap: var(--s3); text-decoration: none; color: inherit; }
 .brand svg { flex: none; }
 .brand-title { font-family: var(--display); font-size: 1.25rem; line-height: 1.1; }
-.brand-sub { display: block; font-size: .75rem; opacity: .75; margin-top: 4px; }
+.brand-sub { display: block; font-family: var(--body); font-size: .75rem; opacity: .8; margin-top: 6px; }
 .side-search { margin-top: var(--s4); position: relative; }
 .side-search input { width: 100%; padding: 10px 12px 10px 36px; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08); color: #fff; font-size: .9rem; }
 .side-search input::placeholder { color: rgba(255,255,255,.55); }
@@ -76,7 +76,7 @@ p { margin: 0 0 var(--s4); }
 .nav-link:hover { background: rgba(255,255,255,.1); }
 .nav-link.active { background: var(--marigold); color: var(--ink); font-weight: 600; }
 .nav-link:active { transform: translateY(1px); }
-.nav-link .notes { margin-left: auto; font-size: .7rem; letter-spacing: .04em; opacity: .7; font-variant-numeric: tabular-nums; }
+.nav-link .notes { margin-left: auto; flex: none; white-space: nowrap; font-size: .65rem; letter-spacing: .015em; opacity: .8; font-variant-numeric: tabular-nums; }
 .nav-link.active .notes { opacity: .85; }
 .nav-group { margin-top: var(--s4); }
 .nav-group-title { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; opacity: .65; padding: 0 12px 6px; }
@@ -102,7 +102,7 @@ p { margin: 0 0 var(--s4); }
 .muted { color: var(--ink-soft); }
 .small { font-size: .85rem; }
 .row { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; }
-.grow { flex: 1; }
+.grow { flex: 1 1 180px; min-width: 0; }
 hr.rule { border: 0; border-top: 1px solid var(--rule); margin: var(--s5) 0; }
 
 .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--pine); background: var(--pine); color: #fff; cursor: pointer; font-weight: 600; font-size: .9rem; transition: background .15s, transform .05s; text-decoration: none; }
@@ -121,23 +121,23 @@ label.field { display: grid; gap: 4px; font-size: .78rem; color: var(--ink-soft)
 
 /* Tuning header */
 .tune-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s5); align-items: start; }
-.strings { display: grid; grid-template-columns: repeat(6, minmax(52px, 1fr)); gap: var(--s2); margin-top: var(--s4); }
+.strings { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--s2); margin-top: var(--s4); }
 .string { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 10px 6px 8px; text-align: center; position: relative; transition: transform .15s, box-shadow .15s; cursor: pointer; }
 .string:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .string.pluck { animation: pluck .35s ease-out; }
 @keyframes pluck { 0% { background: var(--marigold-tint); } 100% { background: var(--card); } }
-.string .num { font-size: .65rem; color: var(--ink-faint); letter-spacing: .08em; }
+.string .num { font-size: .65rem; color: var(--ink-soft); letter-spacing: .06em; white-space: nowrap; }
 .string .note { font-family: var(--display); font-size: 1.6rem; line-height: 1; margin: 2px 0; }
 .string .note sub { font-size: .55em; color: var(--ink-soft); }
 .string .delta { font-size: .78rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .delta.up { color: var(--marigold-deep); }
 .delta.down { color: var(--pine-soft); }
-.delta.same { color: var(--ink-faint); }
-.string .midi { font-size: .68rem; color: var(--ink-faint); margin-top: 2px; }
-.string.muted-string { opacity: .55; border-style: dashed; }
-.fret-row { display: grid; grid-template-columns: repeat(6, minmax(52px, 1fr)); gap: var(--s2); margin-top: var(--s2); font-size: .72rem; color: var(--ink-soft); }
+.delta.same { color: var(--ink-soft); }
+.string .midi { font-size: .68rem; color: var(--ink-soft); margin-top: 4px; white-space: nowrap; }
+.string.muted-string { color: var(--ink-soft); border-style: dashed; cursor: default; }
+.fret-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--s2); margin-top: var(--s2); font-size: .72rem; color: var(--ink-soft); }
 .fret-row span { text-align: center; position: relative; }
-.fret-row .f { display: inline-block; transform: translateX(50%); background: var(--pine-tint); color: var(--pine); border-radius: 999px; padding: 1px 8px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fret-row .f { display: inline-block; background: var(--pine-tint); color: var(--pine); border-radius: 999px; padding: 2px 6px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s3); margin-top: var(--s4); }
 .fact { background: var(--paper-deep); border-radius: 12px; padding: 10px 12px; }
 .fact .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); }
@@ -153,50 +153,59 @@ label.field { display: grid; gap: 4px; font-size: .78rem; color: var(--ink-soft)
 .chip b { font-weight: 600; color: var(--pine); }
 
 /* Fretboard */
-.fretboard-wrap { overflow-x: auto; padding-bottom: 4px; }
-.fretboard { min-width: 620px; width: 100%; display: block; }
+.fretboard-wrap { max-width: 100%; overflow-x: auto; padding: 4px 0 12px; scrollbar-color: var(--pine-soft) var(--paper-deep); }
+.fretboard { min-width: 860px; width: 100%; display: block; }
 .fretboard text { font-family: var(--body); }
 .fretboard .wire { stroke: #B9AE98; }
 .fretboard .nut { stroke: var(--ink); stroke-width: 5; }
 .fretboard .str { stroke: #7A7064; }
 .fretboard .marker { fill: var(--paper-deep); }
-.fretboard .label { fill: var(--ink-faint); font-size: 10px; }
+.fretboard .label { fill: var(--ink-soft); font-size: 11px; }
 .fretboard .dot { fill: var(--marigold); stroke: var(--card); stroke-width: 1.5; }
 .fretboard .dot.root { fill: var(--pine); }
-.fretboard .dot-text { fill: var(--ink); font-size: 9.5px; font-weight: 600; pointer-events: none; }
+.fretboard .dot-text { fill: var(--ink); font-size: 11px; font-weight: 600; pointer-events: none; }
 .fretboard .dot.root + .dot-text { fill: #fff; }
-.fretboard .name { fill: var(--ink-faint); font-size: 9px; }
+.fretboard .name { fill: var(--ink-soft); font-size: 10px; paint-order: stroke; stroke: var(--card); stroke-width: 3px; stroke-linejoin: round; }
 .fretboard .hit { fill: transparent; cursor: pointer; }
 .legend { display: flex; gap: var(--s4); font-size: .8rem; color: var(--ink-soft); align-items: center; flex-wrap: wrap; }
 .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: -1px; margin-right: 5px; }
 .legend i.root { background: var(--pine); } .legend i.tone { background: var(--marigold); }
 
 /* Chord diagrams */
-.voicings { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: var(--s3); }
+.voicings { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--s3); }
 .voicing { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 10px 8px 6px; text-align: center; cursor: pointer; transition: transform .15s, box-shadow .15s, border-color .15s; }
 .voicing:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--pine-tint); }
 .voicing:active { transform: translateY(0); }
 .voicing.playing { border-color: var(--marigold); }
 .voicing .vname { font-family: var(--display); font-size: .95rem; margin-bottom: 4px; }
 .voicing svg { width: 100%; height: auto; display: block; }
-.voicing .vmeta { font-size: .68rem; color: var(--ink-faint); margin-top: 4px; }
+.voicing .vmeta { font-size: .72rem; color: var(--ink-soft); margin-top: 6px; }
 .diagram .d-wire { stroke: #B9AE98; stroke-width: 1; }
 .diagram .d-nut { stroke: var(--ink); stroke-width: 3; }
 .diagram .d-str { stroke: #7A7064; stroke-width: 1; }
 .diagram .d-dot { fill: var(--pine); }
-.diagram .d-dot.root { fill: var(--marigold-deep); }
-.diagram .d-finger { fill: #fff; font-size: 7.5px; font-weight: 700; font-family: var(--body); }
+.diagram .d-dot.root { fill: var(--marigold); }
+.diagram .d-finger { fill: #fff; font-size: 8px; font-weight: 600; font-family: var(--body); }
+.diagram .d-dot.root + .d-finger { fill: var(--ink); }
 .diagram .d-open { fill: none; stroke: var(--pine); stroke-width: 1.2; }
 .diagram .d-mute { stroke: var(--ink-faint); stroke-width: 1.2; }
 .diagram .d-pos { fill: var(--ink-soft); font-size: 8px; font-family: var(--body); }
-.diagram .d-barre { stroke: var(--pine); stroke-width: 7; stroke-linecap: round; opacity: .95; }
+.diagram .d-barre { stroke: var(--pine); stroke-width: 10; stroke-linecap: round; }
 
+.prog-form { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: end; margin-bottom: var(--s3); }
+.prog-form input { font-family: var(--display); font-size: 1.05rem; letter-spacing: .03em; padding: 11px 14px; width: 100%; }
+.prog-chord { padding: var(--s4) 0; border-top: 1px solid var(--rule); }
+.prog-chord:first-child { border-top: 0; padding-top: var(--s2); }
+.prog-chord h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; font-size: 1.25rem; margin-bottom: var(--s3); }
+.prog-chord h3 .tones { font-family: var(--body); font-size: .8rem; color: var(--ink-soft); letter-spacing: .04em; }
+.prog-chord.playing h3 { color: var(--marigold-deep); }
+.prog-bad { display: inline-flex; gap: 6px; align-items: center; background: #F8E3D8; color: #8A341A; border-radius: 999px; padding: 4px 10px; font-size: .8rem; margin: 4px 6px 4px 0; }
 .empty { text-align: center; padding: var(--s6) var(--s4); color: var(--ink-soft); }
 .empty svg { display: block; margin: 0 auto var(--s3); }
 .empty h3 { margin-bottom: var(--s2); }
 
 /* Home */
-.hero { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: var(--s5); align-items: center; }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: var(--s5); align-items: center; }
 .hero-art { justify-self: end; }
 .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s4); }
 .cat { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: var(--s4) var(--s5); }
@@ -205,7 +214,7 @@ label.field { display: grid; gap: 4px; font-size: .78rem; color: var(--ink-soft)
 .cat ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .cat li a { display: flex; justify-content: space-between; gap: 8px; padding: 5px 8px; margin: 0 -8px; border-radius: 8px; text-decoration: none; color: var(--ink); font-size: .9rem; }
 .cat li a:hover { background: var(--pine-tint); }
-.cat li a span { color: var(--ink-faint); font-size: .75rem; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
+.cat li a span { color: var(--ink-soft); font-size: .7rem; letter-spacing: .015em; font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center; }
 
 /* Tables */
 table { width: 100%; border-collapse: collapse; font-size: .88rem; }
@@ -213,7 +222,7 @@ th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rul
 th { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); font-weight: 600; }
 td.mono, .mono { font-variant-numeric: tabular-nums; letter-spacing: .03em; }
 .tbl-wrap { overflow-x: auto; }
-.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--s5); }
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: var(--s5); }
 .tricks { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s4); counter-reset: trick; }
 .trick { background: var(--paper-deep); border-radius: 14px; padding: var(--s4); }
 .trick h4 { font-size: 1rem; margin-bottom: 6px; display: flex; gap: 10px; align-items: baseline; }
@@ -241,13 +250,13 @@ footer.foot a { color: var(--pine); }
   .side-nav { max-height: 0; overflow: hidden; padding: 0 var(--s3); transition: max-height .25s ease; }
   .side.open .side-nav { max-height: 70vh; overflow-y: auto; padding-bottom: var(--s3); }
   .side-art { display: none; }
-  .side-brand { display: none; }
+  .side-head .side-brand { display: none; }
   .topbar { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding: var(--s4) var(--s4) var(--s3); }
   .side-head { padding: 0 var(--s4) var(--s3); }
   .tune-head { grid-template-columns: 1fr; }
   .hero { grid-template-columns: 1fr; }
   .hero-art { justify-self: center; }
-  .strings, .fret-row { grid-template-columns: repeat(6, minmax(44px, 1fr)); gap: 4px; }
+  .strings, .fret-row { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
   .string .note { font-size: 1.3rem; }
   .string .num { font-size: .55rem; letter-spacing: .04em; white-space: nowrap; }
   .string .delta { font-size: .7rem; white-space: nowrap; }
@@ -257,6 +266,18 @@ footer.foot a { color: var(--pine); }
 }
 @media (min-width: 901px) { .side-head .brand { pointer-events: auto; } .menu-btn { display: none; } }
 .menu-btn { background: rgba(255,255,255,.12); border: 0; color: #fff; border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: .85rem; }
+/* Keep intrinsic control widths inside the paper column. */
+.app > *, .row > *, .tune-head > *, .hero > *, .two-col > * { min-width: 0; }
+.row .field { max-width: 100%; }
+select { max-width: 100%; min-height: 40px; }
+.brand-title { display: block; }
+.hero-art svg { display: block; max-width: 100%; height: auto; }
+.side-search input { font-family: var(--body); }
+.nav-link:focus-visible { outline-offset: -3px; }
+.string:focus-visible, .voicing:focus-visible { outline-color: var(--pine); }
+.btn:disabled:hover { background: var(--pine); transform: none; }
+.menu-btn:hover, .menu-btn[aria-expanded="true"] { background: var(--marigold); color: var(--ink); }
+@media (max-width: 600px) { .app { padding: 12px; } .topbar .brand-title { font-size: 1rem; } .topbar .brand { gap: 8px; } .topbar .brand svg { width: 28px; height: 28px; } .menu-btn { flex: none; min-height: 40px; padding: 8px 10px; } .nav-tools { grid-template-columns: 1fr 1fr; gap: 4px; padding: 8px 12px; } .nav-tools .nav-link { font-size: .75rem; padding: 8px 4px; gap: 6px; } .nav-tools svg { flex: none; } .side-nav:not(:focus-within) { visibility: hidden; } .side.open .side-nav { visibility: visible; } .tune-head { gap: 12px; } .tune-head .lede { margin-bottom: 0; } .string { padding: 10px 2px 8px; border-radius: 10px; } .string .num { font-size: .5rem; letter-spacing: 0; } .string .midi { font-size: .55rem; } .string .note { margin: 6px 0; } .fret-row { font-size: .6rem; } .fret-row .f { padding: 2px 4px; } .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .fact { padding: 10px; } .fact .k { font-size: .6rem; letter-spacing: .06em; } .fact .v { font-size: .85rem; overflow-wrap: anywhere; } .row h2 { flex-basis: 100%; } #chordInfo { flex-basis: 100%; } .voicings { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .match { grid-template-columns: 1fr; } .chip { flex-wrap: wrap; text-align: left; } .hero-art svg { max-height: 150px; } }
 </style>
 </head>
 <body>
@@ -299,7 +320,7 @@ footer.foot a { color: var(--pine); }
     <section class="view" id="view-find"></section>
     <section class="view" id="view-guide"></section>
     <footer class="foot">
-      Built from Bill Sethares' <a href="https://sethares.engr.wisc.edu/alternatetunings/alltunings.pdf" target="_blank" rel="noopener">Alternate Tuning Guide</a> (text and tuning data used with gratitude; chord fingerings are computed, not copied). Pitches are sounding pitch, low E on a standard guitar = E2 = MIDI 40. Sound is a plucked-string synthesis, so use it to hear the shape of a tuning, not to tune by ear.
+      Built from Bill Sethares' <a href="https://sethares.engr.wisc.edu/alternatetunings/alltunings.pdf" target="_blank" rel="noopener">Alternate Tuning Guide</a> (text and tuning data used with gratitude; chord fingerings are computed, not copied). Pitches are sounding pitch, low E on a standard guitar = E2 = MIDI 40. Sound is a synthesized plucked string, good for hearing the shape of a tuning and its chords, not for tuning by ear.
     </footer>
   </main>
 </div>
@@ -307,60 +328,65 @@ footer.foot a { color: var(--pine); }
 <!-- Inline SVG library: mark and hand-drawn spot illustrations -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <!-- Brand mark: a tuning peg seen from the headstock -->
+    <!-- Brand mark: a chord box, three strings and one fretted note -->
     <symbol id="mark" viewBox="0 0 64 64">
       <rect x="4" y="4" width="56" height="56" rx="14" fill="#E8A33D"/>
-      <path d="M20 44c0-9 5-14 12-14s12 5 12 14" fill="none" stroke="#1F4D3A" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="32" cy="30" r="6" fill="#1F4D3A"/>
-      <path d="M32 24V13" stroke="#1F4D3A" stroke-width="4" stroke-linecap="round"/>
-      <path d="M24 13h16" stroke="#1F4D3A" stroke-width="4" stroke-linecap="round"/>
-      <path d="M12 50h40" stroke="#1F4D3A" stroke-width="3" stroke-linecap="round" opacity=".55"/>
+      <path d="M20 16v34M32 16v34M44 16v34" fill="none" stroke="#1F4D3A" stroke-width="3" stroke-linecap="round"/>
+      <path d="M14 16h36" stroke="#1F4D3A" stroke-width="5" stroke-linecap="round"/>
+      <path d="M16 31h32M16 46h32" stroke="#1F4D3A" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+      <circle cx="32" cy="38.5" r="6.5" fill="#1F4D3A"/>
     </symbol>
     <!-- Parlor guitar, hand-drawn line art -->
     <symbol id="art-guitar" viewBox="0 0 240 120">
-      <g fill="none" stroke="#F3EFE4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 64c0-14 12-24 28-24 10 0 16 5 22 5 7 0 12-6 24-6 20 0 34 14 34 30s-14 30-34 30c-12 0-17-6-24-6-6 0-12 5-22 5-16 0-28-10-28-24z"/>
-        <circle cx="86" cy="62" r="9"/>
-        <path d="M86 42v-4M110 60h18"/>
-        <path d="M128 56h78l8 4-8 4h-78z"/>
-        <path d="M206 58l12-9M212 59l12-7M206 62l12 9M212 61l12 7"/>
-        <path d="M60 58h20M60 66h20"/>
-        <path d="M44 50v24" stroke="#E8A33D"/>
-        <path d="M30 62h20" stroke="#E8A33D"/>
-        <path d="M134 60h70" stroke-dasharray="0 6" stroke-width="2.4"/>
+      <g transform="rotate(-10 120 60)" fill="none" stroke="#F6F1E7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M102 51c-5-19-19-25-30-19-9 5-7 13-16 12-11-2-17-11-29-5-17 8-17 40 0 49 12 6 18-3 29-5 9-1 7 7 16 12 12 6 26-2 30-20z"/>
+        <path d="M98 52l84 3v14l-84 5"/>
+        <path d="M182 55l9-7 30 2 2 20-30 3-11-4z"/>
+        <path d="M190 52v20" stroke="#E8A33D" stroke-width="3"/>
+        <path d="M198 50v-6M207 50v-6M216 51v-6M198 73v6M207 72v6M216 71v6"/>
+        <path d="M195 43h6M204 43h6M213 44h6M195 80h6M204 79h6M213 78h6" stroke="#E8A33D" stroke-width="3"/>
+        <circle cx="77" cy="63" r="12"/>
+        <circle cx="77" cy="63" r="9" stroke-width="1"/>
+        <path d="M43 53v21M47 54v19" stroke="#E8A33D" stroke-width="3"/>
+        <path d="M47 58l166-3M47 60l166-2M47 62l166-1M47 64h166M47 66l166 1M47 68l166 2" stroke-width=".65"/>
+        <path d="M111 53v20M124 54v18M137 54v17M149 54v17M161 55v15M172 55v15" stroke-width="1"/>
+        <path d="M29 46c-10 7-10 27 0 34" stroke-width="1" opacity=".65"/>
       </g>
     </symbol>
     <!-- Tuning peg and headstock, for the identify page -->
     <symbol id="art-peg" viewBox="0 0 200 160">
       <g fill="none" stroke="#1F4D3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M60 150V46c0-10 8-18 18-18h44c10 0 18 8 18 18v104"/>
-        <path d="M60 46l-26 6M60 72l-26 6M60 98l-26 6M140 46l26 6M140 72l26 6M140 98l26 6"/>
-        <circle cx="30" cy="54" r="6" fill="#E8A33D" stroke="#1F4D3A"/><circle cx="30" cy="80" r="6" fill="#E8A33D"/><circle cx="30" cy="106" r="6" fill="#E8A33D"/>
-        <circle cx="170" cy="54" r="6" fill="#E8A33D"/><circle cx="170" cy="80" r="6" fill="#E8A33D"/><circle cx="170" cy="106" r="6" fill="#E8A33D"/>
-        <path d="M78 150V60M86 150V86M94 150V112M106 150V112M114 150V86M122 150V60"/>
-        <path d="M78 60l-14-6M86 86l-22-6M94 112l-30-6M122 60l14-6M114 86l22-6M106 112l30-6"/>
-        <path d="M90 36c4-6 16-6 20 0" stroke="#E8A33D"/>
+        <path d="M78 154v-28l-13-17-6-76q-1-12 12-14l29-5 29 5q13 2 12 14l-6 76-13 17v28" fill="#F6F1E7"/>
+        <path d="M60 39H43M62 66H43M64 93H43M140 39h17M138 66h19M136 93h21"/>
+        <path d="M29 33q-7 6 0 12h13V33zM29 60q-7 6 0 12h13V60zM29 87q-7 6 0 12h13V87zM171 33q7 6 0 12h-13V33zM171 60q7 6 0 12h-13V60zM171 87q7 6 0 12h-13V87z" fill="#E8A33D"/>
+        <path d="M85 154v-30L75 39M91 154v-30L78 66M97 154v-30L81 93M103 154v-30l16-31M109 154v-30l13-58M115 154v-30l10-85" stroke-width="1.2"/>
+        <g fill="#E8A33D"><circle cx="75" cy="39" r="4"/><circle cx="78" cy="66" r="4"/><circle cx="81" cy="93" r="4"/><circle cx="125" cy="39" r="4"/><circle cx="122" cy="66" r="4"/><circle cx="119" cy="93" r="4"/></g>
+        <path d="M79 124h42" stroke-width="4"/><path d="M88 27q12-5 24 0" stroke="#E8A33D"/>
       </g>
     </symbol>
     <!-- Bottleneck slide over strings, for empty voicings -->
     <symbol id="art-slide" viewBox="0 0 200 120">
       <g fill="none" stroke="#1F4D3A" stroke-width="2.2" stroke-linecap="round">
-        <path d="M10 30h180M10 46h180M10 62h180M10 78h180M10 94h180" stroke="#9A918A"/>
-        <path d="M70 18h24l6 12v62l-6 12H70l-6-12V30z" fill="#F6F1E7"/>
-        <path d="M78 28v64" stroke="#E8A33D"/>
-        <path d="M140 20c6 8 6 16 0 24M152 14c10 12 10 24 0 36" stroke="#E8A33D"/>
+        <path d="M12 28h176M12 41h176M12 54h176M12 67h176M12 80h176M12 93h176" stroke="#1F4D3A" stroke-width="1"/>
+        <path d="M33 23v75M62 23v75M116 23v75M153 23v75" stroke="#1F4D3A" stroke-width="1" opacity=".35"/>
+        <path d="M82 18v82c0 9 28 9 28 0V18" fill="#F6F1E7"/>
+        <ellipse cx="96" cy="18" rx="14" ry="6" fill="#F6F1E7"/>
+        <ellipse cx="96" cy="18" rx="8" ry="2" stroke="#E8A33D" stroke-width="1.5"/>
+        <path d="M89 31v59M104 30v60" stroke="#E8A33D"/>
+        <path d="M130 13h25m-5-5 5 5-5 5" stroke="#E8A33D"/>
       </g>
     </symbol>
-    <!-- Capo and songbook, for the guide header -->
+    <!-- Open songbook with staff notation and a ribbon -->
     <symbol id="art-book" viewBox="0 0 220 120">
       <g fill="none" stroke="#1F4D3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M30 100V26c0-4 3-7 7-7h60c6 0 10 4 13 8 3-4 7-8 13-8h60c4 0 7 3 7 7v74"/>
-        <path d="M30 100c20-6 50-6 80 2 30-8 60-8 80-2"/>
-        <path d="M110 27v75"/>
-        <path d="M44 40h50M44 52h50M44 64h40M126 40h50M126 52h36" stroke="#9A918A"/>
-        <path d="M140 66h30M140 76h30M140 86h30" stroke="#9A918A"/>
-        <path d="M44 78c6-10 12-10 18 0s12 10 18 0" stroke="#E8A33D"/>
-        <circle cx="156" cy="66" r="2.5" fill="#E8A33D" stroke="none"/><circle cx="146" cy="76" r="2.5" fill="#E8A33D" stroke="none"/><circle cx="166" cy="86" r="2.5" fill="#E8A33D" stroke="none"/>
+        <path d="M22 28l-3 73q45-12 91 4 46-16 91-4l-3-73" fill="#F6F1E7"/>
+        <path d="M26 20q44-10 84 9 40-19 84-9v75q-43-10-84 9-41-19-84-9z" fill="#F6F1E7"/>
+        <path d="M110 29v75M31 99q41-8 76 8M113 107q35-16 76-8"/>
+        <path d="M122 26v80l6-5 6 3V23" fill="#E8A33D" stroke="#E8A33D" stroke-width="1.2"/>
+        <path d="M40 41q27-3 54 5M40 47q27-3 54 5M40 53q27-3 54 5M40 59q27-3 54 5M40 65q27-3 54 5M143 44q17-4 37-4M143 50q17-4 37-4M143 56q17-4 37-4M143 62q17-4 37-4M143 68q17-4 37-4" stroke-width=".8" opacity=".6"/>
+        <path d="M53 56V38M75 62V44M157 57V38M173 60V41" stroke-width="1.5"/>
+        <g fill="#1F4D3A" stroke="none"><ellipse cx="50" cy="57" rx="3.5" ry="2.5" transform="rotate(-18 50 57)"/><ellipse cx="72" cy="63" rx="3.5" ry="2.5" transform="rotate(-18 72 63)"/><ellipse cx="154" cy="58" rx="3.5" ry="2.5"/><ellipse cx="170" cy="61" rx="3.5" ry="2.5"/></g>
+        <path d="M41 78q25-2 49 5M144 80q14-4 33-4" stroke="#E8A33D"/>
       </g>
     </symbol>
   </defs>
@@ -368,6 +394,7 @@ footer.foot a { color: var(--pine); }
 
 <script src="data.js"></script>
 <script src="engine.js"></script>
+<script src="audio.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

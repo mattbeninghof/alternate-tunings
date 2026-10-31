@@ -136,9 +136,10 @@
     opts = Object.assign({ maxFret: 12, span: 4, maxFingers: 4, limit: 24, allowOmitFifth: true }, opts || {});
     const tones = pitchSet(rootPc, intervals);
     const required = new Set(tones);
-    // 9th chords and larger may omit the 5th; 7th chords may not.
-    if (opts.allowOmitFifth && intervals.length >= 5 && intervals.includes(7)) required.delete(mod12(rootPc + 7));
-    const minSounding = Math.max(3, Math.min(required.size, 4));
+    // 9th chords and larger may omit the 5th; 7th chords may not. Types may declare their own optional tones.
+    const optional = opts.optional || (opts.allowOmitFifth && intervals.length >= 5 && intervals.includes(7) ? [7] : []);
+    for (const o of optional) required.delete(mod12(rootPc + o));
+    const minSounding = Math.max(Math.min(2, tones.size), Math.min(required.size, 4), tones.size <= 2 ? 2 : 3);
     const nStr = midi.length;
 
     // candidate frets per string
@@ -187,7 +188,8 @@
       // scoring: lower is better
       let score = 0;
       const fifthPc = mod12(rootPc + 7);
-      score += bassPc === rootPc ? 0 : (bassPc === fifthPc ? 1.5 : 5); // root (or fifth) in the bass
+      if (opts.bassPc != null) score += bassPc === opts.bassPc ? 0 : 9; // slash chord: asked-for bass note
+      else score += bassPc === rootPc ? 0 : (bassPc === fifthPc ? 1.5 : 5); // root (or fifth) in the bass
       score += (nStr - sounding.length) * 2;       // more strings
       score += fingers * 1.5;                      // fewer fingers
       score += minFret * 0.6;                      // lower on the neck
@@ -237,6 +239,72 @@
     const rest = fretted.filter((i) => fingers[i] === 0).sort((a, b) => frets[a] - frets[b] || a - b);
     for (const i of rest) { fingers[i] = Math.min(next, 4); next++; }
     return fingers;
+  }
+
+  // Chord symbol parsing: "G", "Am7", "F#m7b5", "Bbmaj7", "D7sus4", "C6/9", "G/B", "Cdim7", "E+".
+  const SUFFIX_ALIASES = {
+    '': 'maj', 'maj': 'maj', 'major': 'maj', 'M': 'maj',
+    'm': 'min', 'min': 'min', 'minor': 'min', '-': 'min',
+    '7': '7', 'dom7': '7',
+    'maj7': 'maj7', 'M7': 'maj7', 'Δ': 'maj7', 'Δ7': 'maj7', 'ma7': 'maj7',
+    'm7': 'min7', 'min7': 'min7', '-7': 'min7', 'mi7': 'min7',
+    '6': '6', 'maj6': '6', 'M6': '6',
+    'maj9': 'maj9', 'M9': 'maj9', 'Δ9': 'maj9',
+    '9': '9', 'dom9': '9',
+    '6/9': '6/9', '69': '6/9', '6add9': '6/9', '6-9': '6/9',
+    'm6': 'min6', 'min6': 'min6', '-6': 'min6',
+    'm9': 'min9', 'min9': 'min9', '-9': 'min9',
+    'm7b5': 'm7b5', 'min7b5': 'm7b5', 'ø': 'm7b5', 'ø7': 'm7b5', 'm7-5': 'm7b5', '-7b5': 'm7b5', 'half-dim': 'm7b5',
+    '7b9': '7b9', '7-9': '7b9',
+    '7#9': '7#9', '7+9': '7#9',
+    'dim': 'dim', 'o': 'dim', '°': 'dim', 'mb5': 'dim',
+    'dim7': 'dim7', 'o7': 'dim7', '°7': 'dim7',
+    'aug': 'aug', '+': 'aug', '#5': 'aug', 'maj#5': 'aug',
+    'aug7': 'aug7', '+7': 'aug7', '7#5': 'aug7', '7+5': 'aug7', '7+': 'aug7',
+    'sus4': 'sus4', 'sus': 'sus4',
+    '7sus4': '7sus4', '7sus': '7sus4',
+    'sus2': 'sus2',
+    'add9': 'add9', 'add2': 'add9', '2': 'add9',
+    'madd9': 'madd9', 'madd2': 'madd9', 'm2': 'madd9', 'min add9': 'madd9', 'minadd9': 'madd9',
+    'mmaj7': 'mmaj7', 'mM7': 'mmaj7', 'm(maj7)': 'mmaj7', 'minmaj7': 'mmaj7', '-Δ7': 'mmaj7', 'mΔ7': 'mmaj7',
+    '11': '11', 'm11': 'min11', 'min11': 'min11', '-11': 'min11',
+    '13': '13', 'maj13': 'maj13', 'M13': 'maj13',
+    '5': '5', 'power': '5'
+  };
+
+  function parseChordSymbol(sym, chordTypes) {
+    if (!sym) return null;
+    let s = String(sym).trim().replace(/\s+/g, '');
+    if (!s) return null;
+    let bass = null;
+    const slash = s.match(/^(.+)\/([A-Ga-g][#b]?)$/); // "G/B"; "C6/9" does not match because 9 is not a note
+    if (slash) { s = slash[1]; bass = parseNote(slash[2]); if (bass == null) return null; }
+    const m = s.match(/^([A-Ga-g])([#b♯♭]?)(.*)$/);
+    if (!m) return null;
+    const root = parseNote(m[1] + m[2].replace('♯', '#').replace('♭', 'b'));
+    if (root == null) return null;
+    let suffix = m[3].replace(/[()]/g, '');
+    let abbr = SUFFIX_ALIASES[suffix];
+    if (abbr == null) abbr = SUFFIX_ALIASES[suffix.toLowerCase()];
+    if (abbr == null) {
+      // tolerate "maj" vs "Maj", "Min", "MIN"
+      const lower = suffix.toLowerCase().replace(/^maj/, 'maj').replace(/^min/, 'min');
+      abbr = SUFFIX_ALIASES[lower];
+    }
+    if (abbr == null) return null;
+    const type = chordTypes.find((c) => c.abbr === abbr);
+    if (!type) return null;
+    const spelledRoot = m[1].toUpperCase() + m[2].replace('♯', '#').replace('♭', 'b');
+    return { root, type, bass, symbol: spelledRoot + (type.abbr === 'maj' ? '' : type.abbr) + (bass != null ? '/' + slash[2][0].toUpperCase() + slash[2].slice(1) : '') };
+  }
+
+  // Parse a line like "G  Em7 | C  D7/F#" into chord entries; unknown tokens are kept with ok=false.
+  function parseProgression(text, chordTypes) {
+    const tokens = String(text || '').split(/[\s|,]+/).filter(Boolean);
+    return tokens.map((raw) => {
+      const parsed = parseChordSymbol(raw, chordTypes);
+      return parsed ? Object.assign({ raw, ok: true }, parsed) : { raw, ok: false };
+    });
   }
 
   // Build a chord chart for a tuning: a balanced set of chords in the tuning's natural key(s),
@@ -327,6 +395,7 @@
     NOTE_NAMES, FLAT_NAMES, STANDARD, mod12, pc, noteName, octave, sciName, freq,
     parseNote, parseTuningString, retune, fretRow, stringIntervals, intervalName, span,
     identifyChord, describePitchSet, fretboard, pitchSet, findVoicings, assignFingers,
-    chordChart, identifyTuning, describeMatch, relatedTunings, scaleMap
+    chordChart, identifyTuning, describeMatch, relatedTunings, scaleMap,
+    parseChordSymbol, parseProgression, SUFFIX_ALIASES
   };
 });

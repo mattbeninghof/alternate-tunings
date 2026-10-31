@@ -7,7 +7,8 @@ An interactive companion to Bill Sethares' free [Alternate Tuning Guide](https:/
 - related tunings (transpositions and one-string neighbors), computed
 - a full fretboard note map with any scale from the book's table highlighted
 - a chord voicing finder for any root and chord type, with fingerings, barres and positions, plus an auto-generated chord chart in the tuning's natural key
-- plucked-string playback for open strings, single notes and chord voicings
+- a chord progression tool: type chord names (Em7, A9, Bm7b5, G/B, F13 and so on) and see how each one falls in the current tuning, then play them in sequence
+- plucked-string playback for open strings, single notes, chord voicings and progressions, with a guitar-body EQ and a small room
 - a tuning identifier that reproduces the book's cross index for any six notes you type
 
 Plain HTML, CSS and JavaScript. No build step, no dependencies, relative paths only, so it runs from any folder or GitHub Pages subpath.
@@ -15,8 +16,9 @@ Plain HTML, CSS and JavaScript. No build step, no dependencies, relative paths o
 ## Files
 
 - `index.html` markup and styles
-- `app.js` views, routing, SVG fretboards and chord diagrams, audio
-- `engine.js` music theory: retune and fret rows, chord identification, voicing search, tuning identifier
+- `app.js` views, routing, SVG fretboards and chord diagrams
+- `audio.js` extended Karplus-Strong string synthesis, body EQ, room and compressor
+- `engine.js` music theory: retune and fret rows, chord identification, chord symbol parsing, voicing search, tuning identifier
 - `data.js` the 39 tunings, interval tables, cross index and guide text
 - `icons/`, `manifest.webmanifest` favicon set and PWA manifest
 - `test/engine.test.js` node test suite for the engine (`node --test test/`)

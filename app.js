@@ -10,8 +10,10 @@
 
   const state = {
     route: 'home', tuning: null, custom: null,
-    scaleRoot: null, scaleType: 'major', chordRoot: null, chordType: 'maj', chordTab: 'find', filter: ''
+    scaleRoot: null, scaleType: 'major', chordRoot: null, chordType: 'maj', chordTab: 'find', filter: '',
+    progression: ''
   };
+  try { state.progression = localStorage.getItem('atg.progression') || ''; } catch (e) { /* storage unavailable */ }
 
   // ---------- helpers ----------
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -44,71 +46,13 @@
     return { id: 'custom', name: 'Custom tuning', category: 'custom', midi, text: '' };
   }
 
-  // ---------- audio (Karplus-Strong plucked string) ----------
-  const Audio = {
-    ctx: null, master: null, cache: new Map(),
-    ensure() {
-      if (!this.ctx) {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return null;
-        this.ctx = new AC();
-        this.master = this.ctx.createGain();
-        this.master.gain.value = 0.5;
-        this.master.connect(this.ctx.destination);
-      }
-      if (this.ctx.state === 'suspended') this.ctx.resume();
-      return this.ctx;
-    },
-    buffer(midi) {
-      if (this.cache.has(midi)) return this.cache.get(midi);
-      const ctx = this.ctx, sr = ctx.sampleRate;
-      const f = E.freq(midi);
-      const N = Math.max(2, Math.round(sr / f));
-      const dur = Math.min(3.2, 1.2 + 90 / f);
-      const len = Math.floor(sr * dur);
-      const buf = ctx.createBuffer(1, len, sr);
-      const out = buf.getChannelData(0);
-      const ring = new Float32Array(N);
-      // soft noise burst, slightly lowpassed for a warmer attack
-      let prev = 0;
-      for (let i = 0; i < N; i++) { const w = Math.random() * 2 - 1; prev = 0.5 * (w + prev); ring[i] = prev; }
-      const decay = Math.pow(0.001, N / (sr * (dur * 0.9)));
-      let idx = 0;
-      for (let i = 0; i < len; i++) {
-        const cur = ring[idx], nxt = ring[(idx + 1) % N];
-        ring[idx] = (cur + nxt) * 0.5 * decay;
-        out[i] = cur;
-        idx = (idx + 1) % N;
-      }
-      // normalize a little toward consistent loudness
-      let peak = 0; for (let i = 0; i < len; i++) peak = Math.max(peak, Math.abs(out[i]));
-      if (peak > 0) for (let i = 0; i < len; i++) out[i] = out[i] / peak * 0.8;
-      this.cache.set(midi, buf);
-      return buf;
-    },
-    pluck(midi, when, gain) {
-      const ctx = this.ensure();
-      if (!ctx || midi == null) return;
-      const src = ctx.createBufferSource();
-      src.buffer = this.buffer(midi);
-      const g = ctx.createGain();
-      g.gain.value = gain == null ? 1 : gain;
-      src.connect(g).connect(this.master);
-      src.start(when == null ? ctx.currentTime : when);
-    },
-    strum(midis, spacing) {
-      const ctx = this.ensure();
-      if (!ctx) return;
-      const t0 = ctx.currentTime + 0.02;
-      let k = 0;
-      midis.forEach((m) => { if (m != null) { this.pluck(m, t0 + k * (spacing || 0.05), 0.9); k++; } });
-    }
-  };
+  // ---------- audio ----------
+  const Audio = window.GuitarAudio;
 
   // ---------- SVG builders ----------
   function fretboardSVG(midi, scaleRoot, scaleIntervals) {
     const nStr = midi.length;
-    const labelW = 44, fretW = 68, rowH = 26, top = 22, bottom = 26;
+    const labelW = 44, fretW = 68, rowH = 30, top = 22, bottom = 26;
     const nutX = labelW + fretW;
     const W = nutX + FRETS * fretW + 8, H = top + nStr * rowH + bottom;
     const map = scaleRoot != null ? E.scaleMap(midi, scaleRoot, scaleIntervals, FRETS) : null;
@@ -136,7 +80,7 @@
         const x = f === 0 ? labelW + fretW / 2 : nutX + (f - 0.5) * fretW;
         const hit = map && map[si].find((n) => n.fret === f);
         if (hit) {
-          s += `<circle class="dot${hit.isRoot ? ' root' : ''}" cx="${x}" cy="${y}" r="10"/><text class="dot-text" x="${x}" y="${y + 3.4}" text-anchor="middle">${E.noteName(m)}</text>`;
+          s += `<circle class="dot${hit.isRoot ? ' root' : ''}" cx="${x}" cy="${y}" r="${hit.isRoot ? 12.5 : 11.5}"/><text class="dot-text" x="${x}" y="${y + 3.8}" text-anchor="middle">${E.noteName(m)}</text>`;
         } else {
           s += `<text class="name" x="${x}" y="${y + 3}" text-anchor="middle">${E.noteName(m)}</text>`;
         }
@@ -151,12 +95,12 @@
   }
 
   function diagramSVG(midi, v, rootPc) {
-    const n = midi.length, colW = 12, x0 = 22, nutY = 26, fretH = 16, rows = 5;
+    const n = midi.length, colW = 14, x0 = 18, nutY = 26, fretH = 18, rows = 5;
     const fretted = v.frets.filter((f) => f > 0);
     const minF = fretted.length ? Math.min(...fretted) : 1;
     const maxF = fretted.length ? Math.max(...fretted) : 1;
     const base = maxF <= rows ? 1 : minF;
-    const W = 100, H = nutY + rows * fretH + 8;
+    const W = 106, H = nutY + rows * fretH + 8;
     let s = `<svg class="diagram" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
     for (let r = 0; r <= rows; r++) {
       const y = nutY + r * fretH;
@@ -179,7 +123,7 @@
       if (f <= 0) continue;
       const x = x0 + i * colW, y = nutY + (f - base + 0.5) * fretH;
       const isRoot = E.pc(midi[i] + f) === rootPc;
-      s += `<circle class="d-dot${isRoot ? ' root' : ''}" cx="${x}" cy="${y}" r="5.2"/>`;
+      s += `<circle class="d-dot${isRoot ? ' root' : ''}" cx="${x}" cy="${y}" r="6"/>`;
       if (v.fingers[i]) s += `<text class="d-finger" x="${x}" y="${y + 2.7}" text-anchor="middle">${v.fingers[i]}</text>`;
     }
     s += '</svg>';
@@ -262,6 +206,7 @@
     const el = $('#view-tuning');
     if (!t) { el.innerHTML = ''; return; }
     const midi = t.midi;
+    let progEntries = [];
     const ret = E.retune(midi), frets = E.fretRow(midi), ivs = E.stringIntervals(midi);
     const open = openChordOf(midi);
     const sounding = midi.filter((m) => m != null);
@@ -277,7 +222,7 @@
       const txt = r > 0 ? `▲ +${r}` : r < 0 ? `▼ ${r}` : '• same';
       return `<button class="string" data-midi="${m}" title="Pluck ${E.sciName(m)}"><div class="num">STRING ${6 - i}</div><div class="note">${E.noteName(m)}<sub>${E.octave(m)}</sub></div><div class="delta ${cls}">${txt}</div><div class="midi">MIDI ${m}</div></button>`;
     }).join('');
-    const fretCells = frets.map((f) => `<span>${f == null ? '' : `<span class="f">fret ${f}</span>`}</span>`).join('') + '<span></span>';
+    const fretCells = frets.map((f, i) => `<span>${f == null ? '' : `<span class="f" title="String ${6 - i}, fret ${f} matches open string ${5 - i}">fret ${f}</span>`}</span>`).join('') + '<span></span>';
 
     const facts = [
       ['Open strings sound', open ? open.name : 'no single chord (' + E.describePitchSet(sounding.map(E.pc)) + ')'],
@@ -334,7 +279,7 @@
           <h2 class="grow" style="margin:0">Fretboard and scales</h2>
           <label class="field">Root<select id="scaleRoot">${scaleRoots}</select></label>
           <label class="field">Scale<select id="scaleType">${scaleTypes}</select></label>
-          <button class="btn ghost sm" id="scaleClear">Notes only</button>
+          <button class="btn ghost sm" id="scaleClear">${state.scaleType === 'none' ? 'Show scale' : 'Notes only'}</button>
         </div>
         <div class="fretboard-wrap" id="fretboardWrap"></div>
         <div class="legend" style="margin-top:var(--s2)"><span><i class="root"></i>root</span><span><i class="tone"></i>scale tone</span><span class="muted">String 1 on top, as in the book. Click any note to hear it.</span></div>
@@ -345,6 +290,7 @@
           <h2 class="grow" style="margin:0">Chords</h2>
           <button class="btn sm ${state.chordTab === 'find' ? '' : 'ghost'}" data-tab="find">Find a chord</button>
           <button class="btn sm ${state.chordTab === 'chart' ? '' : 'ghost'}" data-tab="chart">Chord chart</button>
+          <button class="btn sm ${state.chordTab === 'prog' ? '' : 'ghost'}" data-tab="prog">Progression</button>
         </div>
         <div id="chordFind" ${state.chordTab === 'find' ? '' : 'hidden'}>
           <div class="row" style="margin-bottom:var(--s4)">
@@ -357,6 +303,15 @@
         <div id="chordChart" ${state.chordTab === 'chart' ? '' : 'hidden'}>
           <p class="small muted" id="chartInfo"></p>
           <div class="voicings" id="chartVoicings"></div>
+        </div>
+        <div id="chordProg" ${state.chordTab === 'prog' ? '' : 'hidden'}>
+          <form class="prog-form" id="progForm">
+            <label class="field grow">Chord names, in order<input type="text" id="progInput" placeholder="G  Em7  C  D7/F#  Am9" value="${esc(state.progression)}" autocomplete="off" spellcheck="false"></label>
+            <button class="btn" type="submit">Show chords</button>
+            <button class="btn gold" type="button" id="progPlay">Play all</button>
+          </form>
+          <p class="small muted">Write chords the way a chart does: G, Em, Am7, Dmaj7, A9, Bm7b5, Cdim7, E7#9, F6/9, Gsus4, D7sus4, Cadd9, A13, and slash chords like G/B for a particular bass note. The progression stays put while you switch tunings, so you can compare how the same song falls in each one.</p>
+          <div id="progOut"></div>
         </div>
         <p class="small muted" style="margin:var(--s4) 0 0">Fingerings are suggestions, computed from the interval table the way the book describes: a hand span of four frets, at most four fingers with a barre, root or fifth preferred in the bass. Dots in gold are roots. Click a chord to hear it.</p>
       </div>`;
@@ -379,7 +334,9 @@
       el.querySelectorAll('[data-tab]').forEach((x) => x.classList.toggle('ghost', x.dataset.tab !== state.chordTab));
       $('#chordFind').hidden = state.chordTab !== 'find';
       $('#chordChart').hidden = state.chordTab !== 'chart';
+      $('#chordProg').hidden = state.chordTab !== 'prog';
       if (state.chordTab === 'chart') drawChart();
+      if (state.chordTab === 'prog') drawProgression();
     }));
     $('#chordRoot').addEventListener('change', (e) => { state.chordRoot = +e.target.value; drawVoicings(); });
     $('#chordType').addEventListener('change', (e) => { state.chordType = e.target.value; drawVoicings(); });
@@ -392,11 +349,57 @@
     };
     $('#voicings').addEventListener('click', playVoicing);
     $('#chartVoicings').addEventListener('click', playVoicing);
+    $('#progForm').addEventListener('submit', (e) => { e.preventDefault(); setProgression($('#progInput').value); drawProgression(); });
+    $('#progInput').addEventListener('change', () => { setProgression($('#progInput').value); drawProgression(); });
+    $('#progPlay').addEventListener('click', () => { setProgression($('#progInput').value); drawProgression(); playProgression(); });
+    $('#progOut').addEventListener('click', playVoicing);
 
     drawFretboard();
     drawVoicings();
     if (state.chordTab === 'chart') drawChart();
+    if (state.chordTab === 'prog') drawProgression();
 
+    function setProgression(text) {
+      state.progression = text;
+      try { localStorage.setItem('atg.progression', text); } catch (e) { /* storage unavailable */ }
+    }
+    function drawProgression() {
+      const out = $('#progOut');
+      const entries = E.parseProgression(state.progression, D.CHORD_TYPES);
+      progEntries = [];
+      if (!entries.length) {
+        out.innerHTML = `<div class="empty"><svg viewBox="0 0 200 120" width="180" height="108"><use href="#art-slide"/></svg><h3>Type a progression above</h3><p>Try <button class="chip" type="button" data-prog="G Em7 C D7">G Em7 C D7</button> <button class="chip" type="button" data-prog="Dm9 G13 Cmaj9 A7b9">Dm9 G13 Cmaj9 A7b9</button> <button class="chip" type="button" data-prog="D Dsus4 G/B A7sus4">D Dsus4 G/B A7sus4</button></p></div>`;
+        out.querySelectorAll('[data-prog]').forEach((b) => b.addEventListener('click', () => { $('#progInput').value = b.dataset.prog; setProgression(b.dataset.prog); drawProgression(); }));
+        return;
+      }
+      const bad = entries.filter((e) => !e.ok);
+      let html = bad.length ? `<div style="margin-bottom:var(--s3)">${bad.map((b) => `<span class="prog-bad">Could not read "${esc(b.raw)}"</span>`).join('')}<span class="small muted">Roots are A to G with # or b; see the list above for chord types.</span></div>` : '';
+      entries.filter((e) => e.ok).forEach((c, i) => {
+        const vs = E.findVoicings(midi, c.root, c.type.intervals, { limit: 4, bassPc: c.bass, optional: c.type.optional });
+        progEntries.push({ entry: c, voicings: vs });
+        const tones = c.type.intervals.map((iv) => E.NOTE_NAMES[E.mod12(c.root + iv)]).join(' ');
+        html += `<section class="prog-chord" data-idx="${i}"><h3>${esc(c.symbol)} <span class="tones">${esc(c.type.name)}: ${esc(tones)}${c.bass != null ? ', ' + esc(E.NOTE_NAMES[c.bass]) + ' in the bass' : ''}</span></h3>`;
+        html += vs.length ? `<div class="voicings">${vs.map((v) => voicingCard(c.symbol, v, c.root)).join('')}</div>` : `<p class="small muted" style="margin:0">No comfortable fingering in the first twelve frets of this tuning${c.bass != null ? ' with that bass note' : ''}. Try the voicing finder with a simpler type, or drop the extension.</p>`;
+        html += '</section>';
+      });
+      out.innerHTML = html;
+    }
+    function playProgression() {
+      const ctx = Audio.ensure();
+      if (!ctx) return;
+      const blocks = $('#progOut').querySelectorAll('.prog-chord');
+      let t = ctx.currentTime + 0.05;
+      const step = 1.15;
+      progEntries.forEach((p, i) => {
+        if (!p.voicings.length) return;
+        const fr = p.voicings[0].frets;
+        Audio.strum(fr.map((f, s) => (f < 0 ? null : midi[s] + f)), 0.04, t);
+        const delay = (t - ctx.currentTime) * 1000;
+        setTimeout(() => { blocks.forEach((b) => b.classList.remove('playing')); if (blocks[i]) blocks[i].classList.add('playing'); }, delay);
+        t += step;
+      });
+      setTimeout(() => blocks.forEach((b) => b.classList.remove('playing')), (t - ctx.currentTime) * 1000);
+    }
     function flashStrings(spacing) {
       const btns = el.querySelectorAll('.string[data-midi]');
       btns.forEach((b, i) => setTimeout(() => { b.classList.remove('pluck'); void b.offsetWidth; b.classList.add('pluck'); }, i * (spacing || 0.05) * 1000));
@@ -472,7 +475,7 @@
   function renderGuide() {
     const el = $('#view-guide');
     const G = D.GUIDE;
-    const chordRows = D.CHORD_TYPES.map((c) => `<tr><td>${esc(c.name)}</td><td class="mono">${esc(c.abbr)}</td><td class="mono">${c.intervals.join(', ')}</td></tr>`).join('');
+    const chordRows = D.CHORD_TYPES.filter((c) => !c.extra).map((c) => `<tr><td>${esc(c.name)}</td><td class="mono">${esc(c.abbr)}</td><td class="mono">${c.intervals.join(', ')}</td></tr>`).join('');
     const scaleRows = D.SCALE_TYPES.map((s) => `<tr><td>${esc(s.name)}</td><td class="mono">${s.intervals.join(', ')}</td></tr>`).join('');
     const crossRows = D.CROSS_INDEX.map((r) => `<tr><td>${esc(r.name)}</td><td class="mono"><a href="#c/${r.notes.split(' ').map((n) => n.replace('#', 's')).join('-')}">${esc(r.notes)}</a></td><td>${esc(r.relation)}</td></tr>`).join('');
     const instRows = D.OTHER_INSTRUMENTS.map((r) => `<tr><td>${esc(r.instrument)}</td><td class="mono">${esc(r.notes)}</td><td>${esc(r.relation)}</td></tr>`).join('');
@@ -508,7 +511,8 @@
         <div class="two-col">
           <div class="tbl-wrap"><table><caption class="sr-only">Table of chord intervals</caption><thead><tr><th>Chord</th><th>Abbr.</th><th>Intervals</th></tr></thead><tbody>${chordRows}</tbody></table></div>
           <div class="tbl-wrap"><table><caption class="sr-only">Table of scale intervals</caption><thead><tr><th>Scale</th><th>Intervals</th></tr></thead><tbody>${scaleRows}</tbody></table>
-            <p class="small muted" style="margin-top:var(--s4)">The book spells everything with sharps for simplicity: C# is also Db, D# is Eb, F# is Gb, G# is Ab, A# is Bb.</p></div>
+            <p class="small muted" style="margin-top:var(--s4)">The book spells everything with sharps for simplicity: C# is also Db, D# is Eb, F# is Gb, G# is Ab, A# is Bb.</p>
+            <p class="small muted">The progression tool also understands a few types beyond the book's table: ${esc(D.CHORD_TYPES.filter((c) => c.extra).map((c) => c.name + ' (' + c.abbr + ')').join(', '))}.</p></div>
         </div>
       </div>
       <div class="card">

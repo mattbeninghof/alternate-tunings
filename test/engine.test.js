@@ -150,3 +150,36 @@ test('relatedTunings: Open G neighbors include Modal G and Open G Minor', () => 
   assert.ok(rel.includes('modal-g'));
   assert.ok(rel.includes('open-g-minor'));
 });
+
+test('parseChordSymbol reads common chart spellings, extensions and slash basses', () => {
+  const p = (s) => E.parseChordSymbol(s, D.CHORD_TYPES);
+  assert.equal(p('G').type.abbr, 'maj');
+  assert.equal(p('Am7').type.abbr, 'min7');
+  assert.equal(p('F#m7b5').type.abbr, 'm7b5');
+  assert.equal(p('Bbmaj7').root, 10);
+  assert.equal(p('Bbmaj7').symbol, 'Bbmaj7');
+  assert.equal(p('C6/9').type.abbr, '6/9');
+  assert.equal(p('C6/9').bass, null);
+  assert.equal(p('G/B').bass, 11);
+  assert.equal(p('A9').type.abbr, '9');
+  assert.equal(p('Dm9').type.abbr, 'min9');
+  assert.equal(p('E7#9').type.abbr, '7#9');
+  assert.equal(p('Cdim7').type.abbr, 'dim7');
+  assert.equal(p('E+').type.abbr, 'aug');
+  assert.equal(p('Gsus').type.abbr, 'sus4');
+  assert.equal(p('F13').type.abbr, '13');
+  assert.equal(p('H7'), null);
+  assert.equal(p('Gxyz'), null);
+  const prog = E.parseProgression('G  Em7 | C, D7/F# Hm', D.CHORD_TYPES);
+  assert.deepEqual(prog.map((x) => x.ok), [true, true, true, true, false]);
+});
+
+test('findVoicings honors a requested bass note and optional tones', () => {
+  const maj = D.CHORD_TYPES.find((c) => c.abbr === 'maj');
+  const gOverB = E.findVoicings(E.STANDARD, 7, maj.intervals, { bassPc: 11, limit: 5 });
+  assert.ok(gOverB.length > 0);
+  assert.equal(gOverB[0].bassPc, 11);
+  const thirteen = D.CHORD_TYPES.find((c) => c.abbr === '13');
+  const vs = E.findVoicings(E.STANDARD, 7, thirteen.intervals, { optional: thirteen.optional, limit: 5 });
+  assert.ok(vs.length > 0, 'a G13 voicing exists in standard tuning');
+});

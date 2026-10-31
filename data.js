@@ -276,7 +276,16 @@ window.TUNING_DATA = (function () {
     { abbr: 'aug7', name: 'Augmented Seventh', intervals: [0, 4, 8, 10] },
     { abbr: 'sus4', name: 'Suspended Fourth', intervals: [0, 5, 7] },
     { abbr: '7sus4', name: '7 Suspended Fourth', intervals: [0, 5, 7, 10] },
-    { abbr: 'sus2', name: 'Suspended Second', intervals: [0, 2, 7] }
+    { abbr: 'sus2', name: 'Suspended Second', intervals: [0, 2, 7] },
+    // Additional types beyond the book's table, for chord progressions
+    { abbr: 'add9', name: 'Add Nine', intervals: [0, 4, 7, 14], extra: true },
+    { abbr: 'madd9', name: 'Minor Add Nine', intervals: [0, 3, 7, 14], extra: true },
+    { abbr: 'mmaj7', name: 'Minor Major Seventh', intervals: [0, 3, 7, 11], extra: true },
+    { abbr: '11', name: 'Eleventh', intervals: [0, 4, 7, 10, 14, 17], optional: [7, 14], extra: true },
+    { abbr: 'min11', name: 'Minor Eleventh', intervals: [0, 3, 7, 10, 14, 17], optional: [7, 14], extra: true },
+    { abbr: '13', name: 'Thirteenth', intervals: [0, 4, 7, 10, 14, 21], optional: [7, 14], extra: true },
+    { abbr: 'maj13', name: 'Major Thirteenth', intervals: [0, 4, 7, 11, 14, 21], optional: [7, 14], extra: true },
+    { abbr: '5', name: 'Power Chord', intervals: [0, 7], extra: true }
   ];
 
   const SCALE_TYPES = [

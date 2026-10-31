@@ -112,7 +112,8 @@ p { margin: 0 0 var(--s4); color: var(--ink-2); }
 .sheet-hero .ruler-v.l { left: 12px; } .sheet-hero .ruler-v.r { right: 12px; }
 .hero-art { position: relative; max-width: 900px; margin: 0 auto; padding: 24px 0; }
 .hero-art svg { display: block; width: 100%; height: auto; }
-.hotspot { position: absolute; width: 10px; height: 10px; background: var(--orange); transform: translate(-50%, -50%); cursor: pointer; border: 0; padding: 0; box-shadow: 0 0 0 0 rgba(250,54,0,.35); animation: pulse 2.4s ease-out infinite; }
+.hotspot { position: absolute; width: 22px; height: 22px; background: transparent; transform: translate(-50%, -50%); cursor: pointer; border: 0; padding: 0; border-radius: 50%; box-shadow: 0 0 0 0 rgba(250,54,0,.35); animation: pulse 2.4s ease-out infinite; }
+.hotspot::before { content: ''; position: absolute; inset: 7px; background: var(--orange); }
 .hotspot:hover, .hotspot:focus-visible { animation: none; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(250,54,0,.35); } 70% { box-shadow: 0 0 0 10px rgba(250,54,0,0); } 100% { box-shadow: 0 0 0 0 rgba(250,54,0,0); } }
 .annot { position: absolute; z-index: 4; min-width: 170px; max-width: 240px; background: var(--orange); color: #fff; font-family: var(--mono); font-weight: 500; font-size: .6rem; letter-spacing: .02em; text-transform: uppercase; padding: 10px 12px 10px; line-height: 1.5; pointer-events: none; opacity: 0; transform: translateY(6px); transition: opacity .18s ease, transform .18s ease; }
@@ -384,77 +385,70 @@ footer.foot a { color: var(--ink); }
   <defs>
     <!-- Brand mark: a parlor guitar, upright, on marigold -->
     <symbol id="mark" viewBox="0 0 64 64">
-  <rect x="4" y="4" width="56" height="56" rx="10" fill="#FA3600"/>
-  <path d="M29 10
-           Q28 10 28 11.5
-           L28.6 19
-           Q28.7 20 30 20
-           L30 26
-           C25.5 27 23 30 23 33.5
-           C23 36.2 24.6 38.1 26.3 39.4
-           C22.1 41.1 19 44.4 19 48
-           C19 53.1 24.7 55 32 55
-           C39.3 55 45 53.1 45 48
-           C45 44.4 41.9 41.1 37.7 39.4
-           C39.4 38.1 41 36.2 41 33.5
-           C41 30 38.5 27 34 26
-           L34 20
-           Q35.3 20 35.4 19
-           L36 11.5
-           Q36 10 35 10 Z"
-        fill="#282828"/>
-  <circle cx="32" cy="36.5" r="4.2" fill="#F2F2F1"/>
-  <circle cx="32" cy="36.5" r="2.6" fill="#282828"/>
-  <rect x="27.5" y="47" width="9" height="2.2" rx="1.1"
-        fill="#F2F2F1"/>
-  <path d="M30.9 19 L30.5 48
-           M32 19 V48
-           M33.1 19 L33.5 48"
-        fill="none" stroke="#F2F2F1" stroke-width="0.45"
-        stroke-linecap="round"/>
-</symbol>
+      <rect x="4" y="4" width="56" height="56" rx="10" fill="#FA3600"/>
+      <path d="M28 10 Q32 9 36 10 L35 20 L34.5 28 C40 27 44 30 44 34 C44 37 40 38 40 41 C40 44 48 44 48 49 C48 53 42 55 32 55 C22 55 16 53 16 49 C16 44 24 44 24 41 C24 38 20 37 20 34 C20 30 24 27 29.5 28 L29 20 Z" fill="#282828"/>
+      <circle cx="32" cy="35.5" r="5" fill="none" stroke="#F2F2F1" stroke-width="1.5"/>
+      <rect x="25" y="46.5" width="14" height="3" rx=".8" fill="#F2F2F1"/>
+      <line x1="30" y1="19" x2="30" y2="47" stroke="#F2F2F1" stroke-width=".8"/>
+      <line x1="32" y1="19" x2="32" y2="47" stroke="#F2F2F1" stroke-width=".8"/>
+      <line x1="34" y1="19" x2="34" y2="47" stroke="#F2F2F1" stroke-width=".8"/>
+    </symbol>
     <!-- Parlor guitar, hand-drawn line art -->
     <symbol id="art-guitar" viewBox="0 0 240 120">
-      <path d="M105 49 C103 38 95 31 85 31 C74 30 70 40 61 39 C53 38 52 24 37 23 C20 22 10 37 10 60 C10 83 20 98 37 97 C52 96 53 82 61 81 C70 80 74 90 85 89 C95 89 103 82 105 71 Z" fill="none" stroke="#282828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M101 47 C97 38 92 35 85 35 C74 34 71 44 61 43 C50 42 49 28 37 27 C23 26 14 40 14 60 C14 80 23 94 37 93 C49 92 50 78 61 77 C71 76 74 86 85 85 C92 85 97 82 101 73" fill="none" stroke="#FA3600" stroke-width="0.7" stroke-linecap="round"/>
-      <path d="M103 48 Q110 46 114 49 M103 72 Q110 74 114 71" fill="none" stroke="#282828" stroke-width="1"/>
-      <circle cx="76" cy="60" r="11.5" fill="none" stroke="#282828" stroke-width="1.3"/>
-      <circle cx="76" cy="60" r="14" fill="none" stroke="#FA3600" stroke-width="0.9"/>
-      <circle cx="76" cy="60" r="15.7" fill="none" stroke="#282828" stroke-width="0.6"/>
-      <path d="M89 49 L184 53 L184 67 L89 71 Z" fill="#F2F2F1" stroke="#282828" stroke-width="2" stroke-linejoin="round"/>
-      <path d="M109 50 L109 70" fill="none" stroke="#FA3600" stroke-width="0.9"/>
-      <path d="M175.6 52.6 L175.6 67.4 M167.6 52.3 L167.6 67.7 M160.1 52 L160.1 68 M153.1 51.7 L153.1 68.3 M146.4 51.4 L146.4 68.6 M140.1 51.2 L140.1 68.8 M134.1 50.9 L134.1 69.1 M128.5 50.7 L128.5 69.3 M123.2 50.4 L123.2 69.6 M118.2 50.2 L118.2 69.8 M113.5 50 L113.5 70 M109 49.8 L109 70.2 M104.8 49.7 L104.8 70.3 M100.8 49.5 L100.8 70.5 M97.1 49.3 L97.1 70.7 M93.5 49.2 L93.5 70.8 M90.2 49.1 L90.2 70.9" fill="none" stroke="#282828" stroke-width="0.65"/>
-      <circle cx="160.1" cy="60" r="0.85" fill="#FA3600"/>
-      <circle cx="146.4" cy="60" r="0.85" fill="#FA3600"/>
-      <circle cx="134.1" cy="60" r="0.85" fill="#FA3600"/>
-      <circle cx="123.2" cy="60" r="0.85" fill="#FA3600"/>
-      <circle cx="111.2" cy="56.8" r="0.75" fill="#FA3600"/>
-      <circle cx="111.2" cy="63.2" r="0.75" fill="#FA3600"/>
-      <path d="M184 53 C190 52 190 47 195 46 L221 44 Q226 44 227 49 L227 71 Q226 76 221 76 L195 74 C190 73 190 68 184 67 Z" fill="none" stroke="#282828" stroke-width="2" stroke-linejoin="round"/>
-      <path d="M198 47 L198 41 M209 46 L209 40 M220 45 L220 39 M198 73 L198 79 M209 74 L209 80 M220 75 L220 81" fill="none" stroke="#282828" stroke-width="1.2"/>
-      <ellipse cx="198" cy="38.5" rx="3.5" ry="2.5" fill="#FA3600"/>
-      <ellipse cx="209" cy="37.5" rx="3.5" ry="2.5" fill="#FA3600"/>
-      <ellipse cx="220" cy="36.5" rx="3.5" ry="2.5" fill="#FA3600"/>
-      <ellipse cx="198" cy="81.5" rx="3.5" ry="2.5" fill="#FA3600"/>
-      <ellipse cx="209" cy="82.5" rx="3.5" ry="2.5" fill="#FA3600"/>
-      <ellipse cx="220" cy="83.5" rx="3.5" ry="2.5" fill="#FA3600"/>
-      <path d="M29 44 Q33 46 39 44 L42 48 L42 72 L39 76 Q33 74 29 76 Q31 60 29 44 Z" fill="#F2F2F1" stroke="#282828" stroke-width="1.4" stroke-linejoin="round"/>
-      <path d="M35.5 51 L34 69" fill="none" stroke="#FA3600" stroke-width="1.7" stroke-linecap="round"/>
-      <circle cx="31.8" cy="52" r="0.8" fill="#F2F2F1"/>
-      <circle cx="31.8" cy="55.2" r="0.8" fill="#F2F2F1"/>
-      <circle cx="31.8" cy="58.4" r="0.8" fill="#F2F2F1"/>
-      <circle cx="31.8" cy="61.6" r="0.8" fill="#F2F2F1"/>
-      <circle cx="31.8" cy="64.8" r="0.8" fill="#F2F2F1"/>
-      <circle cx="31.8" cy="68" r="0.8" fill="#F2F2F1"/>
-      <path d="M31.8 52 L184 55 L198 51 M31.8 55.2 L184 57 L209 51 M31.8 58.4 L184 59 L220 51" fill="none" stroke="#282828" stroke-width="0.55" stroke-linecap="round"/>
-      <path d="M31.8 61.6 L184 61 L220 69 M31.8 64.8 L184 63 L209 69 M31.8 68 L184 65 L198 69" fill="none" stroke="#282828" stroke-width="0.4" stroke-linecap="round"/>
-      <line x1="184" y1="53" x2="184" y2="67" stroke="#FA3600" stroke-width="2"/>
-      <circle cx="198" cy="51" r="1.8" fill="#F2F2F1" stroke="#282828" stroke-width="0.8"/>
-      <circle cx="209" cy="51" r="1.8" fill="#F2F2F1" stroke="#282828" stroke-width="0.8"/>
-      <circle cx="220" cy="51" r="1.8" fill="#F2F2F1" stroke="#282828" stroke-width="0.8"/>
-      <circle cx="198" cy="69" r="1.8" fill="#F2F2F1" stroke="#282828" stroke-width="0.8"/>
-      <circle cx="209" cy="69" r="1.8" fill="#F2F2F1" stroke="#282828" stroke-width="0.8"/>
-      <circle cx="220" cy="69" r="1.8" fill="#F2F2F1" stroke="#282828" stroke-width="0.8"/>
+      <path d="M103 47 C99 36 92 28 82 28 C73 28 70 39 62 39 C54 39 51 19 34 19 C18 19 10 36 10 60 C10 84 18 101 34 101 C51 101 54 81 62 81 C70 81 73 92 82 92 C92 92 99 84 103 73 Z" fill="none" stroke="#282828" stroke-width="1.1"/>
+      <path d="M100 48 C96 37 91 31 82 31 C74 31 71 42 62 42 C52 42 49 22 34 22 C20 22 13 38 13 60 C13 82 20 98 34 98 C49 98 52 78 62 78 C71 78 74 89 82 89 C91 89 96 83 100 72" fill="none" stroke="#8C8C88" stroke-width=".4"/>
+      <path d="M15 79 C19 94 26 99 36 99 C49 98 54 81 62 80 M73 87 C82 96 95 87 101 75" fill="none" stroke="#B3B3AF" stroke-width=".65"/>
+      <path d="M17 78 L24 92 M18 72 L29 95 M20 69 L33 96 M23 70 L36 95 M27 73 L39 93 M32 77 L42 91 M38 81 L45 88 M75 83 L79 89 M79 81 L84 89 M83 79 L88 87 M88 77 L92 84 M93 75 L96 80" fill="none" stroke="#B3B3AF" stroke-width=".35"/>
+      <path d="M20 42 C23 31 27 27 33 26 M22 46 C25 35 28 31 33 30 M43 27 C48 32 50 39 53 43 M44 33 C47 38 49 44 53 47 M73 38 C77 33 82 33 86 35 M76 41 C80 37 85 37 89 40" fill="none" stroke="#B3B3AF" stroke-width=".35"/>
+      <path d="M18 60 H97 M35 25 V95" fill="none" stroke="#B3B3AF" stroke-width=".25" stroke-dasharray="3 3"/>
+      <ellipse cx="78" cy="60" rx="10.7" ry="11.1" fill="none" stroke="#8C8C88" stroke-width=".45"/>
+      <ellipse cx="78" cy="60" rx="9.5" ry="9.9" fill="none" stroke="#282828" stroke-width=".65"/>
+      <ellipse cx="78" cy="60" rx="8.1" ry="8.5" fill="#282828" fill-opacity=".09" stroke="#8C8C88" stroke-width=".35"/>
+      <path d="M71 58 L77 52 M71 62 L81 52 M72 65 L84 53 M75 67 L85 57 M79 67 L85 61" fill="none" stroke="#8C8C88" stroke-width=".4"/>
+      <path d="M26 47 C29 49 33 49 37 47 L37 73 C33 71 29 71 26 73 Z" fill="#282828" fill-opacity=".08" stroke="#282828" stroke-width=".65"/>
+      <line x1="33.5" y1="52" x2="33" y2="68" stroke="#282828" stroke-width="1"/>
+      <circle cx="29" cy="54.5" r=".65" fill="#282828"/>
+      <circle cx="29" cy="56.7" r=".65" fill="#282828"/>
+      <circle cx="29" cy="58.9" r=".65" fill="#282828"/>
+      <circle cx="29" cy="61.1" r=".65" fill="#282828"/>
+      <circle cx="29" cy="63.3" r=".65" fill="#282828"/>
+      <circle cx="29" cy="65.5" r=".65" fill="#282828"/>
+      <path d="M92 53 L179 56 V64 L92 67 Z" fill="#8C8C88" fill-opacity=".09" stroke="#282828" stroke-width=".75"/>
+      <path d="M103 67 V73 M103 47 V53 M94 68 L175 65" fill="none" stroke="#8C8C88" stroke-width=".4"/>
+      <path d="M170.5 55.7 V64.3 M162.4 55.4 V64.6 M154.8 55.2 V64.8 M147.6 54.9 V65.1 M140.9 54.7 V65.3 M134.5 54.5 V65.5 M128.4 54.3 V65.7 M122.7 54.1 V65.9 M117.4 53.9 V66.1 M112.3 53.7 V66.3 M107.5 53.5 V66.5 M103 53.4 V66.6 M98.7 53.2 V66.8 M94.7 53.1 V66.9" fill="none" stroke="#8C8C88" stroke-width=".45"/>
+      <circle cx="158.5" cy="60" r=".65" fill="#8C8C88"/>
+      <circle cx="144.2" cy="60" r=".65" fill="#8C8C88"/>
+      <circle cx="131.4" cy="60" r=".65" fill="#8C8C88"/>
+      <circle cx="120" cy="60" r=".65" fill="#8C8C88"/>
+      <circle cx="105.2" cy="57.8" r=".6" fill="#8C8C88"/>
+      <circle cx="105.2" cy="62.2" r=".6" fill="#8C8C88"/>
+      <path d="M180 56 L188 50 L219 48 L224 52 V68 L219 72 L188 70 L180 64 Z" fill="none" stroke="#282828" stroke-width=".8"/>
+      <path d="M188 52 L218 50 L222 53 M189 68 L219 70" fill="none" stroke="#B3B3AF" stroke-width=".4"/>
+      <path d="M194 50 V45 M205 49 V44 M216 48 V43 M194 70 V75 M205 71 V76 M216 72 V77" fill="none" stroke="#282828" stroke-width=".7"/>
+      <ellipse cx="194" cy="43" rx="3" ry="1.8" fill="none" stroke="#282828" stroke-width=".65"/>
+      <ellipse cx="205" cy="42" rx="3" ry="1.8" fill="none" stroke="#282828" stroke-width=".65"/>
+      <ellipse cx="216" cy="41" rx="3" ry="1.8" fill="none" stroke="#282828" stroke-width=".65"/>
+      <ellipse cx="194" cy="77" rx="3" ry="1.8" fill="none" stroke="#282828" stroke-width=".65"/>
+      <ellipse cx="205" cy="78" rx="3" ry="1.8" fill="none" stroke="#282828" stroke-width=".65"/>
+      <ellipse cx="216" cy="79" rx="3" ry="1.8" fill="none" stroke="#282828" stroke-width=".65"/>
+      <circle cx="194" cy="54" r="1.4" fill="none" stroke="#8C8C88" stroke-width=".5"/>
+      <circle cx="205" cy="53.5" r="1.4" fill="none" stroke="#8C8C88" stroke-width=".5"/>
+      <circle cx="216" cy="53" r="1.4" fill="none" stroke="#8C8C88" stroke-width=".5"/>
+      <circle cx="194" cy="66" r="1.4" fill="none" stroke="#8C8C88" stroke-width=".5"/>
+      <circle cx="205" cy="66.5" r="1.4" fill="none" stroke="#8C8C88" stroke-width=".5"/>
+      <circle cx="216" cy="67" r="1.4" fill="none" stroke="#8C8C88" stroke-width=".5"/>
+      <polyline points="29,54.5 179,57 194,54" fill="none" stroke="#282828" stroke-width=".44"/>
+      <polyline points="29,56.7 179,58.2 205,53.5" fill="none" stroke="#282828" stroke-width=".38"/>
+      <polyline points="29,58.9 179,59.4 216,53" fill="none" stroke="#282828" stroke-width=".32"/>
+      <polyline points="29,61.1 179,60.6 216,67" fill="none" stroke="#282828" stroke-width=".28"/>
+      <polyline points="29,63.3 179,61.8 205,66.5" fill="none" stroke="#282828" stroke-width=".24"/>
+      <polyline points="29,65.5 179,63 194,66" fill="none" stroke="#282828" stroke-width=".2"/>
+      <line x1="179.5" y1="55.5" x2="179.5" y2="64.5" stroke="#282828" stroke-width="1.1"/>
+      <path d="M31 46 V12 H48 M78 48 V16 H94 M180 54 V28 H168 M217 39 V24 H230" fill="none" stroke="#B3B3AF" stroke-width=".4"/>
+      <rect x="29.5" y="44.5" width="3" height="3" fill="#FA3600"/>
+      <rect x="76.5" y="46.5" width="3" height="3" fill="#FA3600"/>
+      <rect x="178.5" y="52.5" width="3" height="3" fill="#FA3600"/>
+      <rect x="215.5" y="37.5" width="3" height="3" fill="#FA3600"/>
     </symbol>
     <!-- Tuning peg and headstock, for the identify page -->
     <symbol id="art-peg" viewBox="0 0 200 160">

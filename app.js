@@ -195,10 +195,10 @@
         <span class="cross tl"></span><span class="cross tr"></span><span class="cross bl"></span><span class="cross br"></span><span class="ruler-v l"></span><span class="ruler-v r"></span>
         <div class="hero-art" id="heroArt">
           <svg viewBox="0 0 240 120" aria-hidden="true"><use href="#art-guitar"/></svg>
-          <button class="hotspot" style="left:14.5%;top:50%" data-title="Retune row" data-tip="How far each string moves from standard, in half steps, string by string." aria-label="Retune row"></button>
-          <button class="hotspot" style="left:31.6%;top:50%" data-title="Open chord" data-tip="What the six open strings sound together. Open G rings a G major; Modal D rings a Dsus4." aria-label="Open chord"></button>
-          <button class="hotspot" style="left:76.6%;top:50%" data-title="Capo" data-tip="Clamp any fret: the shapes stay put and every chord is renamed at sounding pitch." aria-label="Capo"></button>
-          <button class="hotspot" style="left:87%;top:37%" data-title="Fret row" data-tip="Tune each string from the one below it: the fret that sounds the next open string." aria-label="Fret row"></button>
+          <button class="hotspot" style="left:12.9%;top:38.3%" data-title="Retune row" data-tip="How far each string moves from standard, in half steps, string by string." aria-label="Retune row"></button>
+          <button class="hotspot" style="left:32.5%;top:40%" data-title="Open chord" data-tip="What the six open strings sound together. Open G rings a G major; Modal D rings a Dsus4." aria-label="Open chord"></button>
+          <button class="hotspot" style="left:75%;top:45%" data-title="Capo" data-tip="Clamp any fret: the shapes stay put and every chord is renamed at sounding pitch." aria-label="Capo"></button>
+          <button class="hotspot" style="left:90.4%;top:32.5%" data-title="Fret row" data-tip="Tune each string from the one below it: the fret that sounds the next open string." aria-label="Fret row"></button>
           <div class="annot" id="heroAnnot" role="status"></div>
         </div>
         <div class="cursor-tip" id="cursorTip"><span class="xy">X:0000 Y:0000</span><span class="hint">Hover a marker</span></div>
